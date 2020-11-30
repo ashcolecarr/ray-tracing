@@ -1,0 +1,15 @@
+{
+  "name": "ray-tracing",
+  "version": "1.0.0",
+  "description": "The Ray Tracing Challenge written in JavaScript in Node.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "test": "jest"
+  },
+  "author": "Ashley Coleman",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
+}
