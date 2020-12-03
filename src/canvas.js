@@ -10,11 +10,11 @@ class Canvas {
   }
 
   writePixel(x, y, color) {
-    this.pixels[Math.round(y) * this.width + Math.round(x)] = color;
+    this.pixels[y * this.width + x] = color;
   }
 
   pixelAt(x, y) {
-    return this.pixels[Math.round(y) * this.width + Math.round(x)];
+    return this.pixels[y * this.width + x];
   }
 
   canvasToPpm() {
