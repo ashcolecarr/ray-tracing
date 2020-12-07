@@ -8,9 +8,8 @@ test('Creating a canvas', () => {
 
   expect(c.width).toBe(10);
   expect(c.height).toBe(20);
-  let i;
   expect(c.pixels.length).toBe(c.width * c.height);
-  for (i = 0; i < c.pixels.length; i++) {
+  for (let i = 0; i < c.pixels.length; i++) {
     expect(c.pixels[i].red).toBeCloseTo(0, lib.PRECISION);
     expect(c.pixels[i].green).toBeCloseTo(0, lib.PRECISION);
     expect(c.pixels[i].blue).toBeCloseTo(0, lib.PRECISION);
@@ -58,8 +57,7 @@ test('Constructing the PPM pixel data', () => {
 
 test('Splitting long lines in PPM files', () => {
   let c = new Canvas(10, 2);
-  let i;
-  for (i = 0; i < c.pixels.length; i++) {
+  for (let i = 0; i < c.pixels.length; i++) {
     c.pixels[i] = new Color(1, 0.8, 0.6);
   }
   let ppm = c.canvasToPpm();

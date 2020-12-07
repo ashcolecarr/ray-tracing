@@ -3,9 +3,9 @@
 const http = require('http');
 const fs = require('fs');
 const lib = require('../src/lib');
-const Tuple = require('../src/tuples');
 const Canvas = require('../src/canvas');
 const Color = require('../src/colors');
+const Tuple = require('../src/tuples');
 
 let projectile = new lib.Projectile(Tuple.point(0, 1, 0), Tuple.multiply(Tuple.vector(1, 1.8, 0).normalize(), 11.25));
 let environment = new lib.Environment(Tuple.vector(0, -0.1, 0), Tuple.vector(-0.01, 0, 0));
@@ -29,7 +29,7 @@ fs.writeFile('projectile.ppm', canvas.canvasToPpm(), function (err) {
 console.log('Done.');
 
 http.createServer(function (req, res) {
-  res.write('<html><body>');
+  res.write('<html><head><title>Results</title></head><body>');
   res.write('<img src="' + lib.generateScreenCanvasData(canvas) + '" />');
   res.write('</body></html>');
   res.end();
