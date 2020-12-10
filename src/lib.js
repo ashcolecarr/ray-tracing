@@ -1,7 +1,7 @@
 'use-strict';
 
 const nodeCanvas = require('canvas');
-const Tuple = require('../src/tuples');
+const fs = require('fs');
 
 module.exports = {
   EPSILON: 0.00001,
@@ -25,13 +25,6 @@ module.exports = {
     return Math.abs(a - b) < this.EPSILON;
   },
 
-  tick: function (env, proj) {
-    let position = Tuple.add(proj.position, proj.velocity);
-    let velocity = Tuple.add(proj.velocity, Tuple.add(env.gravity, env.wind));
-
-    return new this.Projectile(position, velocity);
-  },
-
   generateScreenCanvasData: function (canvas) {
     // Draw canvas data to the screen canvas.
     let imageCanvas = nodeCanvas.createCanvas(canvas.width, canvas.height);
@@ -50,5 +43,13 @@ module.exports = {
     context.putImageData(imageData, 0, 0);
 
     return imageCanvas.toDataURL();
+  },
+
+  writePpmFile: function (filename, canvas) {
+    fs.writeFile(filename, canvas.canvasToPpm(), function (err) {
+      if (err) {
+        throw err;
+      }
+    });
   }
 }

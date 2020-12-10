@@ -1,6 +1,6 @@
 const { TestScheduler } = require('jest');
-const Matrix = require('../src/matrices');
 const lib = require('../src/lib');
+const Matrix = require('../src/matrices');
 const Tuple = require('../src/tuples');
 
 test('Constructing and inspecting a 4x4 matrix', () => {
@@ -256,5 +256,5 @@ test('Multiplying a product by its inverse', () => {
 
   let actual = Matrix.multiply(c, b.inverse());
 
-  expect(Matrix.areEqual(a, actual));
+  expect(Matrix.areEqual(a, actual)).toBeTruthy();;
 });
