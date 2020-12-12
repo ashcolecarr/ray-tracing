@@ -7,6 +7,8 @@ module.exports = {
   EPSILON: 0.00001,
   PRECISION: 5,
 
+  shapeId: 0,
+
   Projectile: class {
     constructor(position, velocity) {
       this.position = position;
@@ -51,5 +53,11 @@ module.exports = {
         throw err;
       }
     });
+  },
+
+  generateId: function () {
+    this.shapeId++;
+
+    return this.shapeId;
   }
 }

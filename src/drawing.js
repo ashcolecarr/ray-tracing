@@ -3,9 +3,12 @@
 const lib = require('../src/lib');
 const Canvas = require('../src/canvas');
 const Color = require('../src/colors');
+const Intersection = require('../src/intersections');
 const Matrix = require('../src/matrices');
 const transformation = require('../src/transformations');
 const Tuple = require('../src/tuples');
+const Sphere = require('./spheres');
+const Ray = require('./rays');
 
 module.exports = {
   tick: function (env, proj) {
@@ -52,6 +55,41 @@ module.exports = {
     }
 
     lib.writePpmFile('clock.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawCircle: function () {
+    let rayOrigin = Tuple.point(0, 0, -5);
+    let wallZ = 10;
+    let wallSize = 7;
+
+    let canvasPixels = 100;
+    let pixelSize = wallSize / canvasPixels;
+    let half = wallSize / 2;
+
+    let canvas = new Canvas(canvasPixels, canvasPixels);
+    let color = new Color(1, 0, 0);
+    let sphere = new Sphere();
+
+    for (let y = 0; y < canvasPixels; y++) {
+      let worldY = half - pixelSize * y;
+
+      for (let x = 0; x < canvasPixels; x++) {
+        let worldX = -half + pixelSize * x;
+        let position = Tuple.point(worldX, worldY, wallZ);
+
+        let ray = new Ray(rayOrigin, Tuple.subtract(position, rayOrigin).normalize());
+        let intersections = sphere.intersect(ray);
+
+        let hit = Intersection.hit(intersections);
+        if (hit) {
+          canvas.writePixel(Math.round(x), Math.round(y), color);
+        }
+      }
+    }
+
+    lib.writePpmFile('circle.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   }
