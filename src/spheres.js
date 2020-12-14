@@ -2,6 +2,7 @@
 
 const Intersection = require('./intersections');
 const lib = require('./lib');
+const Material = require('./materials');
 const Matrix = require('./matrices');
 const Tuple = require('./tuples');
 
@@ -9,6 +10,7 @@ class Sphere {
   constructor() {
     this.id = lib.generateId();
     this.transform = Matrix.identity(4);
+    this.material = new Material();
   }
 
   intersect(ray) {
@@ -33,6 +35,15 @@ class Sphere {
 
   setTransform(transform) {
     this.transform = transform;
+  }
+
+  normalAt(worldPoint) {
+    let objectPoint = Matrix.multiplyTuple(this.transform.inverse(), worldPoint);
+    let objectNormal = Tuple.subtract(objectPoint, Tuple.point(0, 0, 0));
+    let worldNormal = Matrix.multiplyTuple(this.transform.inverse().transpose(), objectNormal);
+    worldNormal.w = 0;
+
+    return worldNormal.normalize();
   }
 }
 

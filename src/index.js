@@ -6,7 +6,8 @@ const drawing = require('../src/drawing');
 console.log('Generating data...');
 //let screenData = drawing.drawProjectile();
 //let screenData = drawing.drawClock();
-let screenData = drawing.drawCircle();
+//let screenData = drawing.drawFlatCircle();
+let screenData = drawing.draw3DCircle();
 console.log('Done.');
 
 http.createServer(function (req, res) {

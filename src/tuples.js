@@ -67,6 +67,10 @@ class Tuple {
   static cross(a, b) {
     return Tuple.vector(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
   }
+
+  reflect(normal) {
+    return Tuple.subtract(this, Tuple.multiply(normal, 2 * Tuple.dot(this, normal)));
+  }
 }
 
 module.exports = Tuple;

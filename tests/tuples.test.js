@@ -1,6 +1,6 @@
 const { TestScheduler } = require('jest');
-const Tuple = require('../src/tuples');
 const lib = require('../src/lib');
+const Tuple = require('../src/tuples');
 
 test('A tuple with w = 1.0 is a point', () => {
   let a = new Tuple(4.3, -4.2, 3.1, 1.0);
@@ -242,4 +242,20 @@ test('The cross product of two vectors', () => {
   expect(actual2.y).toBeCloseTo(-2, lib.PRECISION);
   expect(actual2.z).toBeCloseTo(1, lib.PRECISION);
   expect(actual2.w).toBeCloseTo(0, lib.PRECISION);
+});
+
+test('Reflecting a vector approaching at 45 degrees', () => {
+  let v = Tuple.vector(1, -1, 0);
+  let n = Tuple.vector(0, 1, 0);
+  let r = v.reflect(n);
+
+  expect(Tuple.areEqual(r, Tuple.vector(1, 1, 0))).toBeTruthy();
+});
+
+test('Reflecting a vector off a slanted surface', () => {
+  let v = Tuple.vector(0, -1, 0);
+  let n = Tuple.vector(Math.sqrt(2) / 2, Math.sqrt(2) / 2, 0);
+  let r = v.reflect(n);
+
+  expect(Tuple.areEqual(r, Tuple.vector(1, 0, 0))).toBeTruthy();
 });
