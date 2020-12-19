@@ -1,6 +1,7 @@
 'use-strict';
 
 const Matrix = require('../src/matrices');
+const Tuple = require('./tuples');
 
 module.exports = {
   Axis: Object.freeze({
@@ -67,4 +68,18 @@ module.exports = {
 
     return matrix;
   },
+
+  viewTransform: function(from, to, up) {
+    let forward = Tuple.subtract(to, from).normalize();
+    let upNormal = up.normalize();
+    let left = Tuple.cross(forward, upNormal);
+    let trueUp = Tuple.cross(left, forward);
+
+    let orientation = new Matrix(4, 4, [left.x, left.y, left.z, 0,
+      trueUp.x, trueUp.y, trueUp.z, 0,
+      -forward.x, -forward.y, -forward.z, 0,
+      0, 0, 0, 1]);
+
+    return Matrix.multiply(orientation, this.translation(-from.x, -from.y, -from.z));
+  }
 }

@@ -1,5 +1,4 @@
 const { TestScheduler } = require('jest');
-const lib = require('../src/lib');
 const Matrix = require('../src/matrices');
 const transformation = require('../src/transformations');
 const Tuple = require('../src/tuples');
@@ -237,4 +236,48 @@ test('Chained transformations must be applied in reverse order', () => {
   let actual = Matrix.multiplyTuple(t, p);
 
   expect(Tuple.areEqual(expected, actual)).toBeTruthy();
+});
+
+test('The transformation matrix for the default orientation', () => {
+  let from = Tuple.point(0, 0, 0);
+  let to = Tuple.point(0, 0, -1);
+  let up = Tuple.vector(0, 1, 0);
+
+  let t = transformation.viewTransform(from, to, up);
+
+  expect(Matrix.areEqual(t, Matrix.identity(4))).toBeTruthy();
+});
+
+test('A view transformation matrix looking in positive z direction', () => {
+  let from = Tuple.point(0, 0, 0);
+  let to = Tuple.point(0, 0, 1);
+  let up = Tuple.vector(0, 1, 0);
+
+  let t = transformation.viewTransform(from, to, up);
+
+  expect(Matrix.areEqual(t, transformation.scaling(-1, 1, -1))).toBeTruthy();
+});
+
+test('The view transformation moves the world', () => {
+  let from = Tuple.point(0, 0, 8);
+  let to = Tuple.point(0, 0, 0);
+  let up = Tuple.vector(0, 1, 0);
+
+  let t = transformation.viewTransform(from, to, up);
+
+  expect(Matrix.areEqual(t, transformation.translation(0, 0, -8))).toBeTruthy();
+});
+
+test('An arbitrary view transformation', () => {
+  let from = Tuple.point(1, 3, 2);
+  let to = Tuple.point(4, -2, 8);
+  let up = Tuple.vector(1, 1, 0);
+
+  let expected = new Matrix(4, 4, [-0.50709, 0.50709,  0.67612, -2.36643, 
+    0.76772, 0.60609, 0.12122, -2.82843, -0.35857, 0.59761, -0.71714, 0, 
+    0, 0, 0, 1]);
+
+  let t = transformation.viewTransform(from, to, up);
+
+  expect(Matrix.areEqual(t, expected)).toBeTruthy();
 });

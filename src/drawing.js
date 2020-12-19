@@ -1,16 +1,18 @@
 'use-strict';
 
-const lib = require('../src/lib');
-const Canvas = require('../src/canvas');
-const Color = require('../src/colors');
-const Intersection = require('../src/intersections');
-const Light = require('../src/lights');
-const Matrix = require('../src/matrices');
-const transformation = require('../src/transformations');
-const Tuple = require('../src/tuples');
+const Camera = require('./camera');
+const Canvas = require('./canvas');
+const Color = require('./colors');
+const Intersection = require('./intersections');
+const lib = require('./lib');
+const Light = require('./lights');
+const Matrix = require('./matrices');
+const transform = require('./transformations');
+const Tuple = require('./tuples');
 const Sphere = require('./spheres');
 const Ray = require('./rays');
 const Material = require('./materials');
+const World = require('./world');
 
 module.exports = {
   tick: function (env, proj) {
@@ -47,9 +49,9 @@ module.exports = {
     let origin = Tuple.point(0, 0, 0);
     let clockRadius = (3 / 8) * width;
 
-    let twelveOClock = Matrix.multiplyTuple(transformation.translation(0, 0, 1), origin);
+    let twelveOClock = Matrix.multiplyTuple(transform.translation(0, 0, 1), origin);
     for (let i = 0; i < 12; i++) {
-      let oClock = Matrix.multiplyTuple(transformation.rotation(i * (Math.PI / 6), transformation.Axis.Y), twelveOClock);
+      let oClock = Matrix.multiplyTuple(transform.rotation(i * (Math.PI / 6), transform.Axis.Y), twelveOClock);
 
       let x = (clockRadius * oClock.x) + (width / 2);
       let y = (clockRadius * oClock.z) + (height / 2);
@@ -137,6 +139,71 @@ module.exports = {
     }
 
     lib.writePpmFile('3d_circle.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawSphereScene: function () {
+    // Draw a simple sphere scene. Everything is made using spheres.
+    let floor = new Sphere();
+    floor.transform = transform.scaling(10, 0.01, 10);
+    floor.material = new Material();
+    floor.material.color = new Color(1, 0.9, 0.9);
+    floor.material.specular = 0;
+
+    let leftWall = new Sphere();
+    leftWall.transform = Matrix.multiply(transform.translation(0, 0, 5),
+      Matrix.multiply(transform.rotation(-Math.PI / 4, transform.Axis.Y),
+      Matrix.multiply(transform.rotation(Math.PI / 2, transform.Axis.X),
+      transform.scaling(10, 0.01, 10))));
+    leftWall.material = floor.material;
+
+    let rightWall = new Sphere();
+    rightWall.transform = Matrix.multiply(transform.translation(0, 0, 5),
+      Matrix.multiply(transform.rotation(Math.PI / 4, transform.Axis.Y),
+      Matrix.multiply(transform.rotation(Math.PI / 2, transform.Axis.X),
+      transform.scaling(10, 0.01, 10))));
+    rightWall.material = floor.material;
+
+    let middle = new Sphere();
+    middle.transform = transform.translation(-0.5, 1, 0.5);
+    middle.material = new Material();
+    middle.material.color = new Color(0.1, 1, 0.5);
+    middle.material.diffuse = 0.7;
+    middle.material.specular = 0.3;
+
+    let right = new Sphere();
+    right.transform = Matrix.multiply(transform.translation(1.5, 0.5, -0.5),
+      transform.scaling(0.5, 0.5, 0.5));
+    right.material = new Material();
+    right.material.color = new Color(0.5, 1, 0.1);
+    right.material.diffuse = 0.7;
+    right.material.specular = 0.3;
+
+    let left = new Sphere();
+    left.transform = Matrix.multiply(transform.translation(-1.5, 0.33, -0.75),
+      transform.scaling(0.33, 0.33, 0.33));
+    left.material = new Material();
+    left.material.color = new Color(1, 0.8, 0.1);
+    left.material.diffuse = 0.7;
+    left.material.specular = 0.3;
+
+    let world = new World();
+    world.light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+    world.objects.push(floor);
+    world.objects.push(leftWall);
+    world.objects.push(rightWall);
+    world.objects.push(middle);
+    world.objects.push(right);
+    world.objects.push(left);
+
+    let camera = new Camera(400, 200, Math.PI / 3);
+    camera.transform = transform.viewTransform(Tuple.point(0, 1.5, -5),
+      Tuple.point(0, 1, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('sphere_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   }
