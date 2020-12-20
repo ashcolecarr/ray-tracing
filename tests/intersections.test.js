@@ -4,6 +4,7 @@ const Intersection = require('../src/intersections');
 const Sphere = require('../src/spheres');
 const Ray = require('../src/rays');
 const Tuple = require('../src/tuples');
+const transformation = require('../src/transformations');
 
 test('An intersection encapsulates t and object', () => {
   let s = new Sphere();
@@ -108,4 +109,16 @@ test('The hit, when an intersection occurs on the inside', () => {
   expect(Tuple.areEqual(comps.eyeV, Tuple.vector(0, 0, -1))).toBeTruthy();
   expect(comps.inside).toBeTruthy();
   expect(Tuple.areEqual(comps.normalV, Tuple.vector(0, 0, -1))).toBeTruthy();
+});
+
+test('The hit should offset the point', () => {
+  let r = new Ray(Tuple.point(0, 0, -5), Tuple.vector(0, 0, 1));
+  let shape = new Sphere();
+  shape.transform = transformation.translation(0, 0, 1);
+  let i = new Intersection(5, shape);
+
+  let comps = i.prepareComputations(r);
+
+  expect(comps.overPoint.z < -lib.EPSILON / 2).toBeTruthy();
+  expect(comps.point.z > comps.overPoint.z).toBeTruthy();
 });

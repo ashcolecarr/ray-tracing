@@ -19,7 +19,7 @@ class Material {
       lib.nearEqual(a.shininess, b.shininess);
   }
 
-  lighting(light, point, eyeV, normalV) {
+  lighting(light, point, eyeV, normalV, inShadow) {
     let effectiveColor = Color.multiply(this.color, light.intensity);
     let lightV = Tuple.subtract(light.position, point).normalize();
     let ambient = Color.multiply(effectiveColor, this.ambient);
@@ -42,6 +42,10 @@ class Material {
         let factor = Math.pow(reflectDotEye, this.shininess);
         specular = Color.multiply(light.intensity, this.specular * factor);
       }
+    }
+
+    if (inShadow) {
+      return ambient;
     }
 
     return Color.add(ambient, Color.add(diffuse, specular));

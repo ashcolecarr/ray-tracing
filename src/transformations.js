@@ -32,19 +32,19 @@ module.exports = {
     let matrix = Matrix.identity(4);
 
     switch (axis) {
-      case this.Axis.X:
+      case 1: // X
         matrix.set(1, 1, Math.cos(radians));
         matrix.set(1, 2, -Math.sin(radians));
         matrix.set(2, 1, Math.sin(radians));
         matrix.set(2, 2, Math.cos(radians));
         break;
-      case this.Axis.Y:
+      case 2: // Y
         matrix.set(0, 0, Math.cos(radians));
         matrix.set(0, 2, Math.sin(radians));
         matrix.set(2, 0, -Math.sin(radians));
         matrix.set(2, 2, Math.cos(radians));
         break;
-      case this.Axis.Z:
+      case 3: // Z
         matrix.set(0, 0, Math.cos(radians));
         matrix.set(0, 1, -Math.sin(radians));
         matrix.set(1, 0, Math.sin(radians));

@@ -8,6 +8,8 @@ module.exports = {
   PRECISION: 5,
 
   shapeId: 0,
+  matrixId: 0,
+  cachedInverses: [],
 
   Projectile: class {
     constructor(position, velocity) {
@@ -55,9 +57,15 @@ module.exports = {
     });
   },
 
-  generateId: function () {
+  generateShapeId: function () {
     this.shapeId++;
 
     return this.shapeId;
+  },
+
+  generateMatrixId: function () {
+    this.matrixId++;
+
+    return this.matrixId;
   }
 }

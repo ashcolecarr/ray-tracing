@@ -102,3 +102,48 @@ test('The color with an intersection behind the ray', () => {
 
   expect(Color.areEqual(c, w.objects[1].material.color)).toBeTruthy();
 });
+
+test('There is no shadow when nothing is collinear with point and light', () => {
+  let w = World.defaultWorld();
+  let p = Tuple.point(0, 10, 0);
+
+  expect(w.isShadowed(p)).toBeFalsy();
+});
+
+test('The shadow when an object is between the point and the light', () => {
+  let w = World.defaultWorld();
+  let p = Tuple.point(10, -10, 10);
+
+  expect(w.isShadowed(p)).toBeTruthy();
+});
+
+test('There is no shadow when an object is behind the light', () => {
+  let w = World.defaultWorld();
+  let p = Tuple.point(-20, 20, -20);
+
+  expect(w.isShadowed(p)).toBeFalsy();
+});
+
+test('There is no shadow when an object is behind the point', () => {
+  let w = World.defaultWorld();
+  let p = Tuple.point(-2, 2, -2);
+
+  expect(w.isShadowed(p)).toBeFalsy();
+});
+
+test('shadeHit() is given an intersection in shadow', () => {
+  let w = new World();
+  w.light = Light.pointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
+  let s1 = new Sphere();
+  w.objects.push(s1);
+  let s2 = new Sphere();
+  s2.transform = transformation.translation(0, 0, 10);
+  w.objects.push(s2);
+  let r = new Ray(Tuple.point(0, 0, 5), Tuple.vector(0, 0, 1));
+  let i = new Intersection(4, s2);
+
+  let comps = i.prepareComputations(r);
+  let c = w.shadeHit(comps);
+
+  expect(Color.areEqual(c, new Color(0.1, 0.1, 0.1))).toBeTruthy();
+});

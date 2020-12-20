@@ -4,22 +4,19 @@ const Intersection = require('./intersections');
 const lib = require('./lib');
 const Material = require('./materials');
 const Matrix = require('./matrices');
+const Shape = require('./shapes');
 const Tuple = require('./tuples');
 
-class Sphere {
+class Sphere extends Shape {
   constructor() {
-    this.id = lib.generateId();
-    this.transform = Matrix.identity(4);
-    this.material = new Material();
+    super();
   }
 
-  intersect(ray) {
-    let ray2 = ray.transform(this.transform.inverse());
+  localIntersect(ray) {
+    let sphereToRay = Tuple.subtract(ray.origin, Tuple.point(0, 0, 0));
 
-    let sphereToRay = Tuple.subtract(ray2.origin, Tuple.point(0, 0, 0));
-
-    let a = Tuple.dot(ray2.direction, ray2.direction);
-    let b = 2 * Tuple.dot(ray2.direction, sphereToRay);
+    let a = Tuple.dot(ray.direction, ray.direction);
+    let b = 2 * Tuple.dot(ray.direction, sphereToRay);
     let c = Tuple.dot(sphereToRay, sphereToRay) - 1;
 
     let discriminant = (b * b) - (4 * a * c);
@@ -37,13 +34,14 @@ class Sphere {
     this.transform = transform;
   }
 
-  normalAt(worldPoint) {
-    let objectPoint = Matrix.multiplyTuple(this.transform.inverse(), worldPoint);
-    let objectNormal = Tuple.subtract(objectPoint, Tuple.point(0, 0, 0));
-    let worldNormal = Matrix.multiplyTuple(this.transform.inverse().transpose(), objectNormal);
-    worldNormal.w = 0;
+  localNormalAt(point) {
+    //let objectPoint = Matrix.multiplyTuple(this.transform.inverse(), point);
+    //let objectNormal = Tuple.subtract(objectPoint, Tuple.point(0, 0, 0));
+    //let worldNormal = Matrix.multiplyTuple(this.transform.inverse().transpose(), objectNormal);
+    //worldNormal.w = 0;
 
-    return worldNormal.normalize();
+    //return worldNormal.normalize();
+    return Tuple.subtract(point, Tuple.point(0, 0, 0));
   }
 }
 

@@ -4,7 +4,12 @@ const lib = require('./lib');
 const Tuple = require('./tuples');
 
 class Matrix {
-  constructor(rows, columns, values) {
+  constructor(rows, columns, values, id = -1) {
+    if (id === -1) {
+      this.id = lib.generateMatrixId();
+    } else {
+      this.id = id;
+    }
     this.rows = rows;
     this.columns = columns;
     this.values = values;
@@ -129,13 +134,18 @@ class Matrix {
   }
 
   inverse() {
+    let cacheIndex = lib.cachedInverses.findIndex(ci => ci.id === this.id);
+    if (cacheIndex > -1) {
+      return lib.cachedInverses[cacheIndex];
+    }
+
     // If a matrix's determinant is zero, then it is not invertible.
     let determinant = this.determinant();
     if (lib.nearEqual(determinant, 0)) {
       throw new Error('Matrix is not invertible');
     }
 
-    let inverse = new Matrix(this.rows, this.columns, new Array(this.rows * this.columns).fill(0));
+    let inverse = new Matrix(this.rows, this.columns, new Array(this.rows * this.columns).fill(0), this.id);
     for (let i = 0; i < this.rows; i++) {
       for (let j = 0; j < this.columns; j++) {
         let cofactor = this.cofactor(i, j);
@@ -143,6 +153,8 @@ class Matrix {
         inverse.set(j, i, cofactor / determinant)
       }
     }
+
+    lib.cachedInverses.push(inverse);
 
     return inverse;
   }

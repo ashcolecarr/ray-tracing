@@ -1,6 +1,7 @@
 'use-strict';
 
 const Computations = require('./computations');
+const lib = require('./lib');
 const Tuple = require('./tuples');
 
 class Intersection {
@@ -42,7 +43,10 @@ class Intersection {
       inside = false;
     }
 
-    return new Computations(this.t, this.object, point, eyeV, normalV, inside);
+    let overPoint = Tuple.add(point, Tuple.multiply(normalV, lib.EPSILON));
+
+    return new Computations(this.t, this.object, point, eyeV, normalV, inside,
+      overPoint);
   }
 }
 
