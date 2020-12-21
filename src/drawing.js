@@ -6,12 +6,13 @@ const Color = require('./colors');
 const Intersection = require('./intersections');
 const lib = require('./lib');
 const Light = require('./lights');
+const Material = require('./materials');
 const Matrix = require('./matrices');
+const Plane = require('./planes');
+const Ray = require('./rays');
+const Sphere = require('./spheres');
 const transform = require('./transformations');
 const Tuple = require('./tuples');
-const Sphere = require('./spheres');
-const Ray = require('./rays');
-const Material = require('./materials');
 const World = require('./world');
 
 module.exports = {
@@ -204,6 +205,54 @@ module.exports = {
     let canvas = camera.render(world);
 
     lib.writePpmFile('sphere_scene.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawSpherePlaneScene: function () {
+    // Draw a simple sphere scene with the spheres hovering over a plane.
+    let floor = new Plane();
+    floor.material = new Material();
+    floor.material.color = new Color(1, 0.9, 0.9);
+    floor.material.specular = 0;
+
+    let middle = new Sphere();
+    middle.transform = transform.translation(-0.5, 1, 0.5);
+    middle.material = new Material();
+    middle.material.color = new Color(0.1, 1, 0.5);
+    middle.material.diffuse = 0.7;
+    middle.material.specular = 0.3;
+
+    let right = new Sphere();
+    right.transform = Matrix.multiply(transform.translation(1.5, 0.5, -0.5),
+      transform.scaling(0.5, 0.5, 0.5));
+    right.material = new Material();
+    right.material.color = new Color(0.5, 1, 0.1);
+    right.material.diffuse = 0.7;
+    right.material.specular = 0.3;
+
+    let left = new Sphere();
+    left.transform = Matrix.multiply(transform.translation(-1.5, 0.33, -0.75),
+      transform.scaling(0.33, 0.33, 0.33));
+    left.material = new Material();
+    left.material.color = new Color(1, 0.8, 0.1);
+    left.material.diffuse = 0.7;
+    left.material.specular = 0.3;
+
+    let world = new World();
+    world.light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+    world.objects.push(floor);
+    world.objects.push(middle);
+    world.objects.push(right);
+    world.objects.push(left);
+
+    let camera = new Camera(400, 200, Math.PI / 3);
+    camera.transform = transform.viewTransform(Tuple.point(0, 1.5, -5),
+      Tuple.point(0, 1, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('sphere_plane_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   }

@@ -1,9 +1,6 @@
 'use-strict';
 
 const Intersection = require('./intersections');
-const lib = require('./lib');
-const Material = require('./materials');
-const Matrix = require('./matrices');
 const Shape = require('./shapes');
 const Tuple = require('./tuples');
 
@@ -35,12 +32,6 @@ class Sphere extends Shape {
   }
 
   localNormalAt(point) {
-    //let objectPoint = Matrix.multiplyTuple(this.transform.inverse(), point);
-    //let objectNormal = Tuple.subtract(objectPoint, Tuple.point(0, 0, 0));
-    //let worldNormal = Matrix.multiplyTuple(this.transform.inverse().transpose(), objectNormal);
-    //worldNormal.w = 0;
-
-    //return worldNormal.normalize();
     return Tuple.subtract(point, Tuple.point(0, 0, 0));
   }
 }
