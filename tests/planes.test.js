@@ -1,6 +1,6 @@
 const { TestScheduler } = require('jest');
 const lib = require('../src/lib');
-const Plane = require('../src/planes');
+const Plane = require('../src/shapes/planes');
 const Ray = require('../src/rays');
 const Tuple = require('../src/tuples');
 

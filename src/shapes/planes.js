@@ -1,9 +1,9 @@
 'use-strict';
 
-const Intersection = require('./intersections');
-const lib = require('./lib');
+const Intersection = require('../intersections');
+const lib = require('../lib');
 const Shape = require('./shapes');
-const Tuple = require('./tuples');
+const Tuple = require('../tuples');
 
 class Plane extends Shape {
   constructor() {

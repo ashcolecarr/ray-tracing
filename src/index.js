@@ -9,7 +9,8 @@ console.log('Generating data...');
 //let screenData = drawing.drawFlatCircle();
 //let screenData = drawing.draw3DCircle();
 //let screenData = drawing.drawSphereScene();
-let screenData = drawing.drawSpherePlaneScene();
+//let screenData = drawing.drawSpherePlaneScene();
+let screenData = drawing.drawSpherePatternScene();
 console.log('Done.');
 
 http.createServer(function (req, res) {

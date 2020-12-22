@@ -1,8 +1,8 @@
 'use-strict';
 
-const Intersection = require('./intersections');
+const Intersection = require('../intersections');
 const Shape = require('./shapes');
-const Tuple = require('./tuples');
+const Tuple = require('../tuples');
 
 class Sphere extends Shape {
   constructor() {

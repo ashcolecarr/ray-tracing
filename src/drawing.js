@@ -2,15 +2,19 @@
 
 const Camera = require('./camera');
 const Canvas = require('./canvas');
+const CheckersPattern = require('./patterns/checkers_patterns');
 const Color = require('./colors');
+const GradientPattern = require('./patterns/gradient_patterns');
 const Intersection = require('./intersections');
 const lib = require('./lib');
 const Light = require('./lights');
 const Material = require('./materials');
 const Matrix = require('./matrices');
-const Plane = require('./planes');
+const Plane = require('./shapes/planes');
 const Ray = require('./rays');
-const Sphere = require('./spheres');
+const RingPattern = require('./patterns/ring_patterns');
+const Sphere = require('./shapes/spheres');
+const StripedPattern = require('./patterns/striped_patterns');
 const transform = require('./transformations');
 const Tuple = require('./tuples');
 const World = require('./world');
@@ -253,6 +257,58 @@ module.exports = {
     let canvas = camera.render(world);
 
     lib.writePpmFile('sphere_plane_scene.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawSpherePatternScene: function () {
+    // Draw a simple sphere scene with the spheres hovering over a plane with patterns.
+    let floor = new Plane();
+    floor.material = new Material();
+    floor.material.color = new Color(1, 0.9, 0.9);
+    floor.material.specular = 0;
+    floor.material.pattern = new CheckersPattern(new Color(1, 0, 0), new Color(0.5, 0, 1));
+
+    let middle = new Sphere();
+    middle.transform = transform.translation(-0.5, 1, 0.5);
+    middle.material = new Material();
+    middle.material.color = new Color(0.1, 1, 0.5);
+    middle.material.diffuse = 0.7;
+    middle.material.specular = 0.3;
+    middle.material.pattern = new GradientPattern(new Color(0, 0, 1), new Color(0, 1, 1));
+
+    let right = new Sphere();
+    right.transform = Matrix.multiply(transform.translation(1.5, 0.5, -0.5),
+      transform.scaling(0.5, 0.5, 0.5));
+    right.material = new Material();
+    right.material.color = new Color(0.5, 1, 0.1);
+    right.material.diffuse = 0.7;
+    right.material.specular = 0.3;
+    right.material.pattern = new RingPattern(new Color(1, 1, 1), new Color(1, 1, 0));
+
+    let left = new Sphere();
+    left.transform = Matrix.multiply(transform.translation(-1.5, 0.33, -0.75),
+      transform.scaling(0.33, 0.33, 0.33));
+    left.material = new Material();
+    left.material.color = new Color(1, 0.8, 0.1);
+    left.material.diffuse = 0.7;
+    left.material.specular = 0.3;
+    left.material.pattern = new StripedPattern(new Color(1, 0, 1), new Color(0, 1, 0));
+
+    let world = new World();
+    world.light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+    world.objects.push(floor);
+    world.objects.push(middle);
+    world.objects.push(right);
+    world.objects.push(left);
+
+    let camera = new Camera(400, 200, Math.PI / 3);
+    camera.transform = transform.viewTransform(Tuple.point(0, 1.5, -5),
+      Tuple.point(0, 1, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('sphere_pattern_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   }

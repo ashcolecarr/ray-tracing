@@ -1,7 +1,7 @@
 'use-strict';
 
 const Shape = require('./shapes');
-const Tuple = require('./tuples');
+const Tuple = require('../tuples');
 
 /**
  * For testing purposes. Not meant to be used directly.

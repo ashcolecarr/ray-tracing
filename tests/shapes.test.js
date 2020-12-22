@@ -2,7 +2,7 @@ const { TestScheduler } = require('jest');
 const Material = require('../src/materials');
 const Matrix = require('../src/matrices');
 const Ray = require('../src/rays');
-const TestShape = require('../src/test_shapes');
+const TestShape = require('../src/shapes/test_shapes');
 const { Axis, rotation, scaling, translation } = require('../src/transformations');
 const Tuple = require('../src/tuples');
 

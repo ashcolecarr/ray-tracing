@@ -1,9 +1,8 @@
 'use-strict';
 
-const lib = require('./lib');
-const Material = require('./materials');
-const Matrix = require('./matrices');
-const Ray = require('./rays');
+const lib = require('../lib');
+const Material = require('../materials');
+const Matrix = require('../matrices');
 
 /**
  * Abstract class Shape not meant to be used directly.

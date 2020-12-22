@@ -1,7 +1,7 @@
 const { TestScheduler } = require('jest');
 const lib = require('../src/lib');
 const Intersection = require('../src/intersections');
-const Sphere = require('../src/spheres');
+const Sphere = require('../src/shapes/spheres');
 const Ray = require('../src/rays');
 const Tuple = require('../src/tuples');
 const transformation = require('../src/transformations');

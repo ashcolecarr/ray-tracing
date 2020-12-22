@@ -11,6 +11,7 @@ class Material {
     this.diffuse = 0.9;
     this.specular = 0.9;
     this.shininess = 200;
+    this.pattern = null;
   }
 
   static areEqual(a, b) {
@@ -19,8 +20,13 @@ class Material {
       lib.nearEqual(a.shininess, b.shininess);
   }
 
-  lighting(light, point, eyeV, normalV, inShadow) {
-    let effectiveColor = Color.multiply(this.color, light.intensity);
+  lighting(object, light, point, eyeV, normalV, inShadow) {
+    let color = this.color;
+    if (this.pattern !== null) {
+      color = this.pattern.patternAtShape(object, point);
+    }
+
+    let effectiveColor = Color.multiply(color, light.intensity);
     let lightV = Tuple.subtract(light.position, point).normalize();
     let ambient = Color.multiply(effectiveColor, this.ambient);
 

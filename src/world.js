@@ -4,7 +4,7 @@ const Color = require('./colors');
 const Intersection = require('./intersections');
 const Light = require('./lights');
 const Ray = require('./rays');
-const Sphere = require('./spheres');
+const Sphere = require('./shapes/spheres');
 const transformation = require('./transformations');
 const Tuple = require('./tuples');
 
@@ -45,8 +45,8 @@ class World {
   shadeHit(comps) {
     let shadowed = this.isShadowed(comps.overPoint);
 
-    return comps.object.material.lighting(this.light, comps.point, 
-      comps.eyeV, comps.normalV, shadowed);
+    return comps.object.material.lighting(comps.object, this.light, 
+      comps.overPoint, comps.eyeV, comps.normalV, shadowed);
   }
 
   colorAt(ray) {
