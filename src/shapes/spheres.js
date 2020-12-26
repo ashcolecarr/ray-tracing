@@ -34,6 +34,14 @@ class Sphere extends Shape {
   localNormalAt(point) {
     return Tuple.subtract(point, Tuple.point(0, 0, 0));
   }
+
+  static glassSphere() {
+    let sphere = new Sphere();
+    sphere.material.transparency = 1;
+    sphere.material.refractiveIndex = 1.5;
+
+    return sphere;
+  }
 }
 
 module.exports = Sphere;

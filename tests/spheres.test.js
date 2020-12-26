@@ -1,5 +1,6 @@
 const { TestScheduler } = require('jest');
 const lib = require('../src/lib');
+const Matrix = require('../src/matrices');
 const Ray = require('../src/rays');
 const Sphere = require('../src/shapes/spheres');
 const Tuple = require('../src/tuples');
@@ -95,4 +96,12 @@ test('The normal is a normalized vector', () => {
   let n = s.localNormalAt(Tuple.point(Math.sqrt(3) / 3, Math.sqrt(3) / 3, Math.sqrt(3) / 3));
 
   expect(Tuple.areEqual(n, n.normalize())).toBeTruthy();
+});
+
+test('A helper for producing a sphere with a glassy material', () => {
+  let s = Sphere.glassSphere();
+
+  expect(Matrix.areEqual(s.transform, Matrix.identity(4))).toBeTruthy();
+  expect(s.material.transparency).toBeCloseTo(1, lib.PRECISION);
+  expect(s.material.refractiveIndex).toBeCloseTo(1.5, lib.PRECISION);
 });

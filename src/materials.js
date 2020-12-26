@@ -12,7 +12,20 @@ class Material {
     this.specular = 0.9;
     this.shininess = 200;
     this.pattern = null;
+    this.reflective = 0.0;
+    this.transparency = 0.0;
+    this.refractiveIndex = 1.0;
   }
+
+  withColor(color) { this.color = color; return this; }
+  withAmbient(ambient) { this.ambient = ambient; return this; }
+  withDiffuse(diffuse) { this.diffuse = diffuse; return this; }
+  withSpecular(specular) { this.specular = specular; return this; }
+  withShininess(shininess) { this.shininess = shininess; return this; }
+  withPattern(pattern) { this.pattern = pattern; return this; }
+  withReflective(reflective) { this.reflective = reflective; return this; }
+  withTransparency(transparency) { this.transparency = transparency; return this; }
+  withRefractiveIndex(refractiveIndex) { this.refractiveIndex = refractiveIndex; return this; }
 
   static areEqual(a, b) {
     return Color.areEqual(a.color, b.color) && lib.nearEqual(a.ambient, b.ambient) && 

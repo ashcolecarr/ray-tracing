@@ -1,7 +1,9 @@
 'use-strict';
 
 const Color = require('./colors');
+const { hit } = require('./intersections');
 const Intersection = require('./intersections');
+const lib = require('./lib');
 const Light = require('./lights');
 const Ray = require('./rays');
 const Sphere = require('./shapes/spheres');
@@ -42,21 +44,36 @@ class World {
     return intersections;
   }
 
-  shadeHit(comps) {
+  shadeHit(comps, remaining = 5) {
     let shadowed = this.isShadowed(comps.overPoint);
 
-    return comps.object.material.lighting(comps.object, this.light, 
+    let surface = comps.object.material.lighting(comps.object, this.light, 
       comps.overPoint, comps.eyeV, comps.normalV, shadowed);
+    
+    let reflected = this.reflectedColor(comps, remaining);
+    let refracted = this.refractedColor(comps, remaining);
+
+    let material = comps.object.material;
+    if (material.reflective > 0 && material.transparency > 0) {
+      let reflectance = Intersection.schlick(comps);
+
+      let reflectColor = Color.multiply(reflected, reflectance);
+      let refractColor = Color.multiply(refracted, (1 - reflectance));
+
+      return Color.add(surface, Color.add(reflectColor, refractColor));
+    } else {
+      return Color.add(Color.add(surface, reflected), refracted);
+    }
   }
 
-  colorAt(ray) {
+  colorAt(ray, remaining = 5) {
     let intersections = this.intersectWorld(ray);
     let hit = Intersection.hit(intersections);
 
     if (hit === null) {
       return new Color(0, 0, 0);
     } else {
-      return this.shadeHit(hit.prepareComputations(ray));
+      return this.shadeHit(hit.prepareComputations(ray, intersections), remaining);
     }
   }
 
@@ -69,11 +86,44 @@ class World {
     let intersections = this.intersectWorld(r);
 
     let h = Intersection.hit(intersections);
-    if (h !== null && h.t < distance) {
+    if (h !== null && h.t < distance && h.object.castsShadow) {
       return true;
     } else {
       return false;
     }
+  }
+
+  reflectedColor(comps, remaining = 5) {
+    if (remaining <= 0 || lib.nearEqual(comps.object.material.reflective, 0)) {
+      return new Color(0, 0, 0);
+    }
+
+    let reflectRay = new Ray(comps.overPoint, comps.reflectV);
+    let color = this.colorAt(reflectRay, remaining - 1);
+
+    return Color.multiply(color, comps.object.material.reflective);
+  }
+
+  refractedColor(comps, remaining = 5) {
+    if (remaining <= 0 || lib.nearEqual(comps.object.material.transparency, 0)) {
+      return new Color(0, 0, 0);
+    }
+
+    let nRatio = comps.n1 / comps.n2;
+    let cosI = Tuple.dot(comps.eyeV, comps.normalV);
+    let sin2T = Math.pow(nRatio, 2) * (1 - Math.pow(cosI, 2));
+    // Check for total internal reflection.
+    if (sin2T > 1) {
+      return new Color(0, 0, 0);
+    }
+
+    let cosT = Math.sqrt(1 - sin2T);
+    let direction = Tuple.subtract(Tuple.multiply(comps.normalV, (nRatio * cosI - cosT)), 
+      Tuple.multiply(comps.eyeV, nRatio));
+    let refractRay = new Ray(comps.underPoint, direction);
+
+    return Color.multiply(this.colorAt(refractRay, remaining - 1), 
+      comps.object.material.transparency);
   }
 }
 

@@ -12,6 +12,11 @@ class Shape {
     this.id = lib.generateShapeId();
     this.transform = Matrix.identity(4);
     this.material = new Material();
+    this.castsShadow = true;
+  }
+
+  static areEqual(a, b) {
+    return a.id === b.id;
   }
 
   intersect(ray) {

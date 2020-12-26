@@ -6,6 +6,8 @@ const Material = require('../src/materials');
 const Sphere = require('../src/shapes/spheres');
 const StripedPattern = require('../src/patterns/striped_patterns');
 const Tuple = require('../src/tuples');
+const TestPattern = require('../src/patterns/test_patterns');
+const Matrix = require('../src/matrices');
 
 test('The default material', () => {
   let m = new Material();
@@ -113,3 +115,37 @@ test('Lighting with a pattern applied', () => {
   expect(Color.areEqual(c1, new Color(1, 1, 1))).toBeTruthy();
   expect(Color.areEqual(c2, new Color(0, 0, 0))).toBeTruthy();
 });
+
+test('Reflectivity for the default material', () => {
+  let m = new Material();
+
+  expect(m.reflective).toBeCloseTo(0.0, lib.PRECISION);
+});
+
+test('Transparency and Refractive Index for the default material', () => {
+  let m = new Material();
+
+  expect(m.transparency).toBeCloseTo(0.0, lib.PRECISION);
+  expect(m.refractiveIndex).toBeCloseTo(1.0, lib.PRECISION);
+});
+
+test('Chained functions set properties accordingly', () => {
+  let c = new Color(0.5, 0.5, 0.5);
+  let p = new TestPattern(new Color(1, 1, 1), new Color(0, 0, 0));
+
+  let m = new Material().withColor(c).withAmbient(0.5).withDiffuse(0.5)
+    .withSpecular(0.5).withShininess(0.5).withPattern(p).withReflective(0.5)
+    .withTransparency(0.5).withRefractiveIndex(0.5);
+
+  expect(Color.areEqual(m.color, c)).toBeTruthy();
+  expect(m.ambient).toBeCloseTo(0.5, lib.PRECISION);
+  expect(m.diffuse).toBeCloseTo(0.5, lib.PRECISION);
+  expect(m.specular).toBeCloseTo(0.5, lib.PRECISION);
+  expect(m.shininess).toBeCloseTo(0.5, lib.PRECISION);
+  expect(Color.areEqual(m.pattern.a, new Color(1, 1, 1))).toBeTruthy();
+  expect(Color.areEqual(m.pattern.b, new Color(0, 0, 0))).toBeTruthy();
+  expect(Matrix.areEqual(m.pattern.transform, Matrix.identity(4))).toBeTruthy();
+  expect(m.reflective).toBeCloseTo(0.5, lib.PRECISION);
+  expect(m.transparency).toBeCloseTo(0.5, lib.PRECISION);
+  expect(m.refractiveIndex).toBeCloseTo(0.5, lib.PRECISION);
+})

@@ -5,6 +5,7 @@ const Sphere = require('../src/shapes/spheres');
 const Ray = require('../src/rays');
 const Tuple = require('../src/tuples');
 const transformation = require('../src/transformations');
+const Plane = require('../src/shapes/planes');
 
 test('An intersection encapsulates t and object', () => {
   let s = new Sphere();
@@ -121,4 +122,84 @@ test('The hit should offset the point', () => {
 
   expect(comps.overPoint.z < -lib.EPSILON / 2).toBeTruthy();
   expect(comps.point.z > comps.overPoint.z).toBeTruthy();
+});
+
+test('Precomputing the reflection vector', () => {
+  let shape = new Plane();
+  let r = new Ray(Tuple.point(0, 1, -1), Tuple.vector(0, -Math.sqrt(2) / 2, Math.sqrt(2) / 2));
+  let i = new Intersection(Math.sqrt(2), shape);
+
+  let comps = i.prepareComputations(r);
+
+  expect(Tuple.areEqual(comps.reflectV, Tuple.vector(0, Math.sqrt(2) / 2, Math.sqrt(2) / 2))).toBeTruthy();
+});
+
+test('Finding n1 and n2 at various intersections', () => {
+  let A = Sphere.glassSphere();
+  A.setTransform(transformation.scaling(2, 2, 2));
+  A.material.refractiveIndex = 1.5;
+  let B = Sphere.glassSphere();
+  B.setTransform(transformation.translation(0, 0, -0.25));
+  B.material.refractiveIndex = 2;
+  let C = Sphere.glassSphere();
+  C.setTransform(transformation.translation(0, 0, 0.25));
+  C.material.refractiveIndex = 2.5;
+  let r = new Ray(Tuple.point(0, 0, -4), Tuple.vector(0, 0, 1));
+  let xs = Intersection.intersections(new Intersection(2, A), new Intersection(2.75, B),
+    new Intersection(3.25, C), new Intersection(4.75, B), new Intersection(5.25, C),
+    new Intersection(6, A));
+
+  let examples = [[1, 1.5], [1.5, 2], [2, 2.5], [2.5, 2.5], [2.5, 1.5], [1.5, 1]];
+  for (let i = 0; i < examples.length; i++) {
+    let comps = xs[i].prepareComputations(r, xs);
+    expect(comps.n1).toBeCloseTo(examples[i][0]);
+    expect(comps.n2).toBeCloseTo(examples[i][1]);
+  }
+});
+
+test('The under point is offset below the surface', () => {
+  let r = new Ray(Tuple.point(0, 0, -5), Tuple.vector(0, 0, 1));
+  let shape = Sphere.glassSphere();
+  shape.setTransform(transformation.translation(0, 0, 1));
+  let i = new Intersection(5, shape);
+  let xs = Intersection.intersections(i);
+
+  let comps = i.prepareComputations(r, xs);
+  
+  expect(comps.underPoint.z > lib.EPSILON / 2).toBeTruthy();
+  expect(comps.point.z < comps.underPoint.z).toBeTruthy();
+});
+
+test('The Schlick approximation under total internal reflection', () => {
+  let shape = Sphere.glassSphere();
+  let r = new Ray(Tuple.point(0, 0, Math.sqrt(2) / 2), Tuple.vector(0, 1, 0));
+  let xs = Intersection.intersections(new Intersection(-Math.sqrt(2) / 2, shape),
+    new Intersection(Math.sqrt(2) / 2, shape));
+
+  let comps = xs[1].prepareComputations(r, xs);
+  let reflectance = Intersection.schlick(comps);
+
+  expect(reflectance).toBeCloseTo(1, lib.PRECISION);
+});
+
+test('The Schlick approximation with a perpendicular viewing angle', () => {
+  let shape = Sphere.glassSphere();
+  let r = new Ray(Tuple.point(0, 0, 0), Tuple.vector(0, 1, 0));
+  let xs = Intersection.intersections(new Intersection(-1, shape), new Intersection(1, shape));
+
+  let comps = xs[1].prepareComputations(r, xs);
+  let reflectance = Intersection.schlick(comps);
+
+  expect(reflectance).toBeCloseTo(0.04, lib.PRECISION);
+});
+
+test('The Schlick approximation with small angle and n2 > n1', () => {
+  let shape = Sphere.glassSphere();
+  let r = new Ray(Tuple.point(0, 0.99, -2), Tuple.vector(0, 0, 1));
+  let xs = Intersection.intersections(new Intersection(1.8589, shape));
+
+  let comps = xs[0].prepareComputations(r, xs);
+  let reflectance = Intersection.schlick(comps);
+
+  expect(reflectance).toBeCloseTo(0.48873, lib.PRECISION);
 });
