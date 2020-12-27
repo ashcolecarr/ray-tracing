@@ -18,6 +18,7 @@ const StripedPattern = require('./patterns/striped_patterns');
 const Tuple = require('./tuples');
 const World = require('./world');
 const { Axis, rotation, scaling, shearing, translation, viewTransform } = require('./transformations');
+const Cube = require('./shapes/cubes');
 
 module.exports = {
   tick: function (env, proj) {
@@ -460,6 +461,140 @@ module.exports = {
     let canvas = camera.render(world);
 
     lib.writePpmFile('reflection_refraction.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawTableScene: function () {
+    // Draw a room scene using only cubes.
+    let world = new World();
+    world.light = Light.pointLight(Tuple.point(0, 6.9, -5), new Color(1, 1, 0.9));
+
+    let floorsPattern = new CheckersPattern(new Color(0, 0, 0), new Color(0.25, 0.25, 0.25));
+    floorsPattern.setPatternTransform(scaling(0.07, 0.07, 0.07));
+    let floors = new Cube();
+    floors.setTransform(Matrix.multiply(scaling(20, 7, 20), translation(0, 1, 0)));
+    floors.material = new Material().withPattern(floorsPattern).withAmbient(0.25)
+      .withDiffuse(0.7).withSpecular(0).withShininess(300).withReflective(0.1);
+    world.objects.push(floors);
+
+    let wallsPattern = new CheckersPattern(new Color(0.4863, 0.3765, 0.2941), new Color(0.3725, 0.2902, 0.2275));
+    wallsPattern.setPatternTransform(scaling(0.05, 20, 0.05));
+    let walls = new Cube();
+    walls.setTransform(scaling(10, 10, 10));
+    walls.material = new Material().withPattern(wallsPattern).withAmbient(0.1)
+      .withDiffuse(0.7).withSpecular(0.9).withShininess(300).withReflective(0.1);
+    world.objects.push(walls);
+
+    let tablePattern = new StripedPattern(new Color(0.5529, 0.4235, 0.3255), new Color(0.6588, 0.5098, 0.4));
+    tablePattern.setPatternTransform(Matrix.multiply(scaling(0.05, 0.05, 0.05), rotation(0.1, Axis.Y)));
+    let tableTop = new Cube();
+    tableTop.setTransform(Matrix.multiply(translation(0, 3.1,0), scaling(3, 0.1, 2)));
+    tableTop.material = new Material().withPattern(tablePattern).withAmbient(0.1)
+      .withDiffuse(0.7).withSpecular(0.9).withShininess(300).withReflective(0.2);
+    world.objects.push(tableTop);
+
+    let tableLeg1 = new Cube();
+    tableLeg1.setTransform(Matrix.multiply(translation(2.7, 1.5, -1.7), scaling(0.1, 1.5, 0.1)));
+    tableLeg1.material = new Material().withColor(new Color(0.5529, 0.4235, 0.3255))
+      .withAmbient(0.2).withDiffuse(0.7);
+    world.objects.push(tableLeg1);
+
+    let tableLeg2 = new Cube();
+    tableLeg2.setTransform(Matrix.multiply(translation(2.7, 1.5, -1.7), scaling(0.1, 1.5, 0.1)));
+    tableLeg2.material = new Material().withColor(new Color(0.5529, 0.4235, 0.3255))
+      .withAmbient(0.2).withDiffuse(0.7);
+    world.objects.push(tableLeg2);
+
+    let tableLeg3 = new Cube();
+    tableLeg3.setTransform(Matrix.multiply(translation(-2.7, 1.5, -1.7), scaling(0.1, 1.5, 0.1)));
+    tableLeg3.material = new Material().withColor(new Color(0.5529, 0.4235, 0.3255))
+      .withAmbient(0.2).withDiffuse(0.7);
+    world.objects.push(tableLeg3);
+
+    let tableLeg4 = new Cube();
+    tableLeg4.setTransform(Matrix.multiply(translation(-2.7, 1.5, -1.7), scaling(0.1, 1.5, 0.1)));
+    tableLeg4.material = new Material().withColor(new Color(0.5529, 0.4235, 0.3255))
+      .withAmbient(0.2).withDiffuse(0.7);
+    world.objects.push(tableLeg4);
+
+    let glassCube = new Cube();
+    glassCube.setTransform(Matrix.multiply(translation(0, 3.45001, 0),
+      Matrix.multiply(rotation(0.2, Axis.Y), scaling(0.25, 0.25, 0.25))));
+    glassCube.castsShadow = false;
+    glassCube.material = new Material().withColor(new Color(1, 1, 0.8))
+      .withAmbient(0).withDiffuse(0.3).withSpecular(0.9).withShininess(300)
+      .withReflective(0.7).withTransparency(0.7).withRefractiveIndex(1.5);
+    world.objects.push(glassCube);
+
+    let littleCube1 = new Cube();
+    littleCube1.setTransform(Matrix.multiply(translation(1, 3.35, -0.9),
+      Matrix.multiply(rotation(-0.4, Axis.Y), scaling(0.15, 0.15, 0.15))));
+    littleCube1.material = new Material().withColor(new Color(1, 0.5, 0.5))
+      .withDiffuse(0.3).withReflective(0.6);
+    world.objects.push(littleCube1);
+
+    let littleCube2 = new Cube();
+    littleCube2.setTransform(Matrix.multiply(translation(-1.5, 3.27, 0.3),
+      Matrix.multiply(rotation(0.4, Axis.Y), scaling(0.15, 0.07, 0.15))));
+    littleCube2.material = new Material().withColor(new Color(1, 1, 0.5));
+    world.objects.push(littleCube2);
+
+    let littleCube3 = new Cube();
+    littleCube3.setTransform(Matrix.multiply(translation(0, 3.25, 1),
+      Matrix.multiply(rotation(0.4, Axis.Y), scaling(0.2, 0.05, 0.05))));
+    littleCube3.material = new Material().withColor(new Color(0.5, 1, 0.5));
+    world.objects.push(littleCube3);
+
+    let littleCube4 = new Cube();
+    littleCube4.setTransform(Matrix.multiply(translation(-0.6, 3.4, 1),
+      Matrix.multiply(rotation(0.8, Axis.Y), scaling(0.05, 0.2, 0.05))));
+    littleCube4.material = new Material().withColor(new Color(0.5, 1, 1));
+    world.objects.push(littleCube4);
+
+    let littleCube5 = new Cube();
+    littleCube5.setTransform(Matrix.multiply(translation(2, 3.4, 1),
+      Matrix.multiply(rotation(0.8, Axis.Y), scaling(0.05, 0.2, 0.05))));
+    littleCube5.material = new Material().withColor(new Color(0.5, 1, 1));
+    world.objects.push(littleCube5);
+
+    let frame1 = new Cube();
+    frame1.setTransform(Matrix.multiply(translation(-10, 4, 1), scaling(0.05, 1, 1)));
+    frame1.material = new Material().withColor(new Color(0.7098, 0.2471, 0.2196))
+      .withDiffuse(0.6);
+    world.objects.push(frame1);
+
+    let frame2 = new Cube();
+    frame2.setTransform(Matrix.multiply(translation(-10, 3.4, 2.7), scaling(0.05, 0.4, 0.4)));
+    frame2.material = new Material().withColor(new Color(0.2667, 0.2706, 0.6902))
+      .withDiffuse(0.6);
+    world.objects.push(frame2);
+
+    let frame3 = new Cube();
+    frame3.setTransform(Matrix.multiply(translation(-10, 4.6, 2.7), scaling(0.05, 0.4, 0.4)));
+    frame3.material = new Material().withColor(new Color(0.3098, 0.5961, 0.3098))
+      .withDiffuse(0.7);
+    world.objects.push(frame3);
+
+    let mirrorFrame = new Cube();
+    mirrorFrame.setTransform(Matrix.multiply(translation(-2, 3.5, 9.95), scaling(5, 1.5, 0.05)));
+    mirrorFrame.material = new Material().withColor(new Color(0.3882, 0.2627, 0.1882))
+      .withDiffuse(0.7);
+    world.objects.push(mirrorFrame);
+
+    let mirror = new Cube();
+    mirror.setTransform(Matrix.multiply(translation(-2, 3.5, 9.95), scaling(4.8, 1.4, 0.06)));
+    mirror.material = new Material().withColor(new Color(0, 0, 0)).withAmbient(0)
+      .withDiffuse(0).withSpecular(1).withShininess(300).withReflective(1);
+    world.objects.push(mirror);
+
+    let camera = new Camera(400, 200, 0.785);
+    camera.transform = viewTransform(Tuple.point(8, 6, -8),
+      Tuple.point(0, 3, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('table_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   }

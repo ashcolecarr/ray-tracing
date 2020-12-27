@@ -12,7 +12,8 @@ console.log('Generating data...');
 //let screenData = drawing.drawSpherePlaneScene();
 //let screenData = drawing.drawSpherePatternScene();
 //let screenData = drawing.drawGlassBall();
-let screenData = drawing.drawReflectionRefraction();
+//let screenData = drawing.drawReflectionRefraction();
+let screenData = drawing.drawTableScene();
 console.log('Done.');
 
 http.createServer(function (req, res) {
