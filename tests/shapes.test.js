@@ -1,10 +1,12 @@
 const { TestScheduler } = require('jest');
+const Group = require('../src/shapes/groups');
 const Material = require('../src/materials');
 const Matrix = require('../src/matrices');
 const Ray = require('../src/rays');
 const TestShape = require('../src/shapes/test_shapes');
 const { Axis, rotation, scaling, translation } = require('../src/transformations');
 const Tuple = require('../src/tuples');
+const Sphere = require('../src/shapes/spheres');
 
 test('The default transformation', () => {
   let s = new TestShape();
@@ -74,4 +76,56 @@ test('Computing the normal on a transformed sphere', () => {
   let n = s.normalAt(Tuple.point(0, Math.sqrt(2) / 2, -Math.sqrt(2) / 2));
 
   expect(Tuple.areEqual(n, Tuple.vector(0, 0.97014, -0.24254))).toBeTruthy();
+});
+
+test('A shape has a parent attribute', () => {
+  let s = new TestShape();
+
+  expect(s.parent).toBeNull();
+});
+
+test('Converting a point from world to object space', () => {
+  let g1 = new Group();
+  g1.setTransform(rotation(Math.PI / 2, Axis.Y));
+  let g2 = new Group();
+  g2.setTransform(scaling(2, 2, 2));
+  g1.addChild(g2);
+  let s = new Sphere();
+  s.setTransform(translation(5, 0, 0));
+  g2.addChild(s);
+
+  let p = s.worldToObject(Tuple.point(-2, 0, -10));
+
+  expect(Tuple.areEqual(p, Tuple.point(0, 0, -1))).toBeTruthy();
+});
+
+test('Converting a normal from object to world space', () => {
+  let g1 = new Group();
+  g1.setTransform(rotation(Math.PI / 2, Axis.Y));
+  let g2 = new Group();
+  g2.setTransform(scaling(1, 2, 3));
+  g1.addChild(g2);
+  let s = new Sphere();
+  s.setTransform(translation(5, 0, 0));
+  g2.addChild(s);
+
+  let n = s.normalToWorld(Tuple.vector(Math.sqrt(3) / 3, Math.sqrt(3) / 3,
+    Math.sqrt(3) / 3));
+
+  expect(Tuple.areEqual(n, Tuple.vector(0.28571, 0.42857, -0.85714))).toBeTruthy();
+});
+
+test('Finding the normal on a child object', () => {
+  let g1 = new Group();
+  g1.setTransform(rotation(Math.PI / 2, Axis.Y));
+  let g2 = new Group();
+  g2.setTransform(scaling(1, 2, 3));
+  g1.addChild(g2);
+  let s = new Sphere();
+  s.setTransform(translation(5, 0, 0));
+  g2.addChild(s);
+
+  let n = s.normalAt(Tuple.point(1.7321, 1.1547, -5.5774));
+
+  expect(Tuple.areEqual(n, Tuple.vector(0.2857, 0.42854, -0.85716))).toBeTruthy();
 });

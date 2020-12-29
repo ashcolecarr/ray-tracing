@@ -47,13 +47,13 @@ class World {
   shadeHit(comps, remaining = 5) {
     let shadowed = this.isShadowed(comps.overPoint);
 
-    let surface = comps.object.material.lighting(comps.object, this.light, 
+    let surface = comps.object.getMaterial().lighting(comps.object, this.light, 
       comps.overPoint, comps.eyeV, comps.normalV, shadowed);
     
     let reflected = this.reflectedColor(comps, remaining);
     let refracted = this.refractedColor(comps, remaining);
 
-    let material = comps.object.material;
+    let material = comps.object.getMaterial();
     if (material.reflective > 0 && material.transparency > 0) {
       let reflectance = Intersection.schlick(comps);
 
@@ -94,18 +94,18 @@ class World {
   }
 
   reflectedColor(comps, remaining = 5) {
-    if (remaining <= 0 || lib.nearEqual(comps.object.material.reflective, 0)) {
+    if (remaining <= 0 || lib.nearEqual(comps.object.getMaterial().reflective, 0)) {
       return new Color(0, 0, 0);
     }
 
     let reflectRay = new Ray(comps.overPoint, comps.reflectV);
     let color = this.colorAt(reflectRay, remaining - 1);
 
-    return Color.multiply(color, comps.object.material.reflective);
+    return Color.multiply(color, comps.object.getMaterial().reflective);
   }
 
   refractedColor(comps, remaining = 5) {
-    if (remaining <= 0 || lib.nearEqual(comps.object.material.transparency, 0)) {
+    if (remaining <= 0 || lib.nearEqual(comps.object.getMaterial().transparency, 0)) {
       return new Color(0, 0, 0);
     }
 

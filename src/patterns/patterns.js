@@ -16,8 +16,8 @@ class Pattern {
     this.transform = transform;
   }
 
-  patternAtShape(object, point) {
-    let objectPoint = Matrix.multiplyTuple(object.transform.inverse(), point);
+  patternAtShape(object, worldPoint) {
+    let objectPoint = object.worldToObject(worldPoint);
     let patternPoint = Matrix.multiplyTuple(this.transform.inverse(), objectPoint);
 
     return this.patternAt(patternPoint);

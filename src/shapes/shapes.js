@@ -13,6 +13,7 @@ class Shape {
     this.transform = Matrix.identity(4);
     this.material = new Material();
     this.castsShadow = true;
+    this.parent = null;
   }
 
   static areEqual(a, b) {
@@ -29,13 +30,11 @@ class Shape {
     this.transform = transform;
   }
 
-  normalAt(point) {
-    let localPoint = Matrix.multiplyTuple(this.transform.inverse(), point);
+  normalAt(worldPoint) {
+    let localPoint = this.worldToObject(worldPoint);
     let localNormal = this.localNormalAt(localPoint);
-    let worldNormal = Matrix.multiplyTuple(this.transform.inverse().transpose(), localNormal);
-    worldNormal.w = 0;
 
-    return worldNormal.normalize();
+    return this.normalToWorld(localNormal);
   }
 
   localIntersect(ray) {
@@ -44,6 +43,35 @@ class Shape {
 
   localNormalAt(point) {
     throw new Error('Not Implemented: Use the localNormalAt method of the concrete class.');
+  }
+
+  worldToObject(point) {
+    let newPoint = point;
+    if (this.parent !== null) {
+      newPoint = this.parent.worldToObject(point);
+    }
+
+    return Matrix.multiplyTuple(this.transform.inverse(), newPoint);
+  }
+
+  normalToWorld(normal) {
+    let newNormal = Matrix.multiplyTuple(this.transform.inverse().transpose(), normal);
+    newNormal.w = 0;
+    newNormal = newNormal.normalize();
+
+    if (this.parent !== null) {
+      newNormal = this.parent.normalToWorld(newNormal);
+    }
+
+    return newNormal;
+  }
+
+  getMaterial() {
+    if (this.parent !== null) {
+      return this.parent.getMaterial();
+    }
+
+    return this.material;
   }
 }
 

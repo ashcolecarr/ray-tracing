@@ -60,7 +60,7 @@ class Intersection {
         if (containers.length === 0) {
           n1 = 1;
         } else {
-          n1 = containers[containers.length - 1].material.refractiveIndex;
+          n1 = containers[containers.length - 1].getMaterial().refractiveIndex;
         }
       }
 
@@ -75,7 +75,7 @@ class Intersection {
         if (containers.length === 0) {
           n2 = 1;
         } else {
-          n2 = containers[containers.length - 1].material.refractiveIndex;
+          n2 = containers[containers.length - 1].getMaterial().refractiveIndex;
         }
 
         break;
