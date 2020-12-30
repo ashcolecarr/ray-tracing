@@ -1,3 +1,4 @@
+*.obj
 *.pdf
 *.ppm
 node_modules

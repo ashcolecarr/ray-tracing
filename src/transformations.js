@@ -1,6 +1,6 @@
 'use-strict';
 
-const Matrix = require('../src/matrices');
+const Matrix = require('./matrices');
 const Tuple = require('./tuples');
 
 Axis = Object.freeze({

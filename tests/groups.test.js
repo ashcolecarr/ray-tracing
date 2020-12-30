@@ -1,12 +1,11 @@
 const { TestScheduler } = require('jest');
-const lib = require('../src/lib');
 const Matrix = require('../src/matrices');
 const Ray = require('../src/rays');
 const Group = require('../src/shapes/groups');
 const Sphere = require('../src/shapes/spheres');
 const TestShape = require('../src/shapes/test_shapes');
 const Tuple = require('../src/tuples');
-const { Axis, rotation, scaling, translation } = require('../src/transformations');
+const { scaling, translation } = require('../src/transformations');
 
 test('Creating a new group', () => {
   let g = new Group();

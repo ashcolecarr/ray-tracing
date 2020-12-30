@@ -1,8 +1,6 @@
 'use-strict';
 
-const Intersection = require('../intersections');
 const Shape = require('./shapes');
-const Tuple = require('../tuples');
 
 class Group extends Shape {
   constructor() {

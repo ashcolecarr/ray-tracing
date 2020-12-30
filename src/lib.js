@@ -67,5 +67,15 @@ module.exports = {
     this.matrixId++;
 
     return this.matrixId;
+  },
+
+  readObjFile: function(filename) {
+    try {
+      let data = fs.readFileSync(filename, 'utf8');
+
+      return data;
+    } catch(e) {
+      throw e;
+    }
   }
 }

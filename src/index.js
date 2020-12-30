@@ -15,7 +15,8 @@ console.log('Generating data...');
 //let screenData = drawing.drawReflectionRefraction();
 //let screenData = drawing.drawTableScene();
 //let screenData = drawing.drawCylinderScene();
-let screenData = drawing.drawHexagon();
+//let screenData = drawing.drawHexagon();
+let screenData = drawing.drawCube();
 console.log('Done.');
 
 http.createServer(function (req, res) {

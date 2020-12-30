@@ -4,7 +4,10 @@ const Camera = require('./camera');
 const Canvas = require('./canvas');
 const CheckersPattern = require('./patterns/checkers_patterns');
 const Color = require('./colors');
+const Cube = require('./shapes/cubes');
+const Cylinder = require('./shapes/cylinders');
 const GradientPattern = require('./patterns/gradient_patterns');
+const Group = require('./shapes/groups');
 const Intersection = require('./intersections');
 const lib = require('./lib');
 const Light = require('./lights');
@@ -18,9 +21,7 @@ const StripedPattern = require('./patterns/striped_patterns');
 const Tuple = require('./tuples');
 const World = require('./world');
 const { Axis, rotation, scaling, shearing, translation, viewTransform } = require('./transformations');
-const Cube = require('./shapes/cubes');
-const Cylinder = require('./shapes/cylinders');
-const Group = require('./shapes/groups');
+const { objToGroup, parseObjFile } = require('./obj_file');
 
 module.exports = {
   tick: function (env, proj) {
@@ -779,6 +780,28 @@ module.exports = {
     let canvas = camera.render(world);
 
     lib.writePpmFile('hexagon.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawCube: function() {
+    let world = new World();
+    world.light = Light.pointLight(Tuple.point(0, 10, 0), new Color(1, 1, 1));
+
+    let fileData = lib.readObjFile('cube.obj');
+    let parser = parseObjFile(fileData);
+
+    let cube = objToGroup(parser);
+    cube.material = new Material().withColor(new Color(0, 1, 0));
+    world.objects.push(cube);
+
+    let camera = new Camera(400, 400, Math.PI / 6);
+    camera.transform = viewTransform(Tuple.point(2, 5, -5),
+      Tuple.point(0, 0.3, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('cube.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   }

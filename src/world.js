@@ -1,7 +1,6 @@
 'use-strict';
 
 const Color = require('./colors');
-const { hit } = require('./intersections');
 const Intersection = require('./intersections');
 const lib = require('./lib');
 const Light = require('./lights');
