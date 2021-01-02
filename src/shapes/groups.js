@@ -6,6 +6,7 @@ class Group extends Shape {
   constructor() {
     super();
     this.children = [];
+    this.name = '';
   }
 
   localIntersect(ray) {
@@ -20,7 +21,7 @@ class Group extends Shape {
     return intersections;
   }
 
-  localNormalAt(point) {
+  localNormalAt(point, hit) {
     throw new Error('The localNormalAt function should not be called for groups.');
   }
 

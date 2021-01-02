@@ -30,9 +30,9 @@ class Shape {
     this.transform = transform;
   }
 
-  normalAt(worldPoint) {
+  normalAt(worldPoint, hit) {
     let localPoint = this.worldToObject(worldPoint);
-    let localNormal = this.localNormalAt(localPoint);
+    let localNormal = this.localNormalAt(localPoint, hit);
 
     return this.normalToWorld(localNormal);
   }
@@ -41,7 +41,7 @@ class Shape {
     throw new Error('Not Implemented: Use the localIntersect method of the concrete class.');
   }
 
-  localNormalAt(point) {
+  localNormalAt(point, hit) {
     throw new Error('Not Implemented: Use the localNormalAt method of the concrete class.');
   }
 

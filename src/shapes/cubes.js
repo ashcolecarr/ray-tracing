@@ -53,7 +53,7 @@ class Cube extends Shape {
     return [tMin, tMax];
   }
 
-  localNormalAt(point) {
+  localNormalAt(point, hit) {
     let maxC = Math.max(Math.abs(point.x), Math.abs(point.y), Math.abs(point.z));
 
     if (lib.nearEqual(maxC, Math.abs(point.x))) {

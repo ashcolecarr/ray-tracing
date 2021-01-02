@@ -24,7 +24,7 @@ class Plane extends Shape {
     this.transform = transform;
   }
 
-  localNormalAt(point) {
+  localNormalAt(point, hit) {
     return Tuple.vector(0, 1, 0);
   }
 }

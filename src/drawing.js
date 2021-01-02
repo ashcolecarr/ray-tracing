@@ -786,13 +786,22 @@ module.exports = {
 
   drawCube: function() {
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(0, 10, 0), new Color(1, 1, 1));
+    world.light = Light.pointLight(Tuple.point(5, 10, 0), new Color(1, 1, 1));
+
+    let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
+    floorPattern.setPatternTransform(Matrix.multiply(rotation(0.3, Axis.Y),
+      scaling(0.25, 0.25, 0.25)));
+    let floor = new Plane();
+    floor.material = new Material().withPattern(floorPattern).withAmbient(0.2)
+      .withDiffuse(0.9).withSpecular(0);
+    world.objects.push(floor);
 
     let fileData = lib.readObjFile('cube.obj');
     let parser = parseObjFile(fileData);
 
     let cube = objToGroup(parser);
-    cube.material = new Material().withColor(new Color(0, 1, 0));
+    cube.material = new Material().withColor(new Color(0, 0, 1));
+    cube.setTransform(Matrix.multiply(translation(-1, 0, 0), scaling(2, 2, 2)));
     world.objects.push(cube);
 
     let camera = new Camera(400, 400, Math.PI / 6);
@@ -804,5 +813,66 @@ module.exports = {
     lib.writePpmFile('cube.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
-  }
+  },
+
+  drawTeapot: function() {
+    let world = new World();
+    world.light = Light.pointLight(Tuple.point(0, 10, -10), new Color(0.7, 0.7, 0.7));
+
+    let fileData = lib.readObjFile('teapot.obj');
+    let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
+    floorPattern.setPatternTransform(scaling(0.25, 0.25, 0.25));
+    let floor = new Plane();
+    floor.material = new Material().withPattern(floorPattern).withAmbient(0.7)
+      .withDiffuse(0.9).withSpecular(0);
+    world.objects.push(floor);
+
+    let parser = parseObjFile(fileData);
+
+    let teapot = objToGroup(parser);
+    teapot.material = new Material().withReflective(.6);
+    teapot.setTransform(rotation(-Math.PI / 2, Axis.X));
+    world.objects.push(teapot);
+
+    let camera = new Camera(400, 400, Math.PI / 6);
+    camera.transform = viewTransform(Tuple.point(2, 20, -60),
+      Tuple.point(0, 0.3, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('teapot.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawHumanoid: function() {
+    let world = new World();
+    world.light = Light.pointLight(Tuple.point(5, 10, 0), new Color(1, 1, 1));
+
+    let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
+    floorPattern.setPatternTransform(Matrix.multiply(rotation(0.3, Axis.Y),
+      scaling(0.25, 0.25, 0.25)));
+    let floor = new Plane();
+    floor.material = new Material().withPattern(floorPattern).withAmbient(0.2)
+      .withDiffuse(0.9).withSpecular(0);
+    world.objects.push(floor);
+
+    let fileData = lib.readObjFile('humanoid_quad.obj');
+    let parser = parseObjFile(fileData);
+
+    let humanoid = objToGroup(parser);
+    humanoid.material = new Material().withColor(new Color(1, 0, 1));
+    humanoid.setTransform(Matrix.multiply(translation(0, 5, 0), Matrix.multiply(rotation(-Math.PI / 2, Axis.Y), rotation(-Math.PI / 2, Axis.X))));
+    world.objects.push(humanoid);
+
+    let camera = new Camera(400, 400, Math.PI / 6);
+    camera.transform = viewTransform(Tuple.point(10, 45, -30),
+      Tuple.point(0, 0.3, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('humanoid_quad.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
 }

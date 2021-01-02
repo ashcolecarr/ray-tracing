@@ -82,7 +82,7 @@ class Cone extends Shape {
     }
   }
 
-  localNormalAt(point) {
+  localNormalAt(point, hit) {
     let dist = Math.pow(point.x, 2) + Math.pow(point.z, 2);
     if (dist < Math.pow(this.maximum, 2) && point.y >= this.maximum - lib.EPSILON) {
       return Tuple.vector(0, 1, 0);

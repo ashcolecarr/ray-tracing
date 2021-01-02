@@ -22,7 +22,7 @@ class TestShape extends Shape {
     this.transform = transform;
   }
 
-  localNormalAt(point) {
+  localNormalAt(point, hit) {
     return Tuple.vector(point.x, point.y, point.z);
   }
 }

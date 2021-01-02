@@ -27,7 +27,7 @@ class Sphere extends Shape {
     return Intersection.intersections(new Intersection(t1, this), new Intersection(t2, this));
   }
 
-  localNormalAt(point) {
+  localNormalAt(point, hit) {
     return Tuple.subtract(point, Tuple.point(0, 0, 0));
   }
 

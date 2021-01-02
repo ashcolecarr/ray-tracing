@@ -9,6 +9,8 @@ class Intersection {
   constructor(t, object) {
     this.t = t;
     this.object = object;
+    this.u = null;
+    this.v = null;
   }
 
   static areEqual(a, b) {
@@ -38,7 +40,12 @@ class Intersection {
   prepareComputations(ray, xs = []) {
     let point = ray.position(this.t);
     let eyeV = Tuple.negate(ray.direction);
-    let normalV = this.object.normalAt(point);
+    let normalV;
+    if (this.u !== null && this.v !== null) {
+      normalV = this.object.normalAt(point, this);
+    } else {
+      normalV = this.object.normalAt(point);
+    }
 
     let inside;
     if (Tuple.dot(normalV, eyeV) < 0) {
@@ -104,6 +111,14 @@ class Intersection {
     let r0 = Math.pow((comps.n1 - comps.n2) / (comps.n1 + comps.n2), 2);
 
     return r0 + (1 - r0) * Math.pow(1 - cos, 5);
+  }
+
+  static intersectionWithUV(t, object, u, v) {
+    let intersection = new Intersection(t, object);
+    intersection.u = u;
+    intersection.v = v;
+
+    return intersection;
   }
 }
 

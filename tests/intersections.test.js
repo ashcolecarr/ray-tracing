@@ -1,11 +1,12 @@
 const { TestScheduler } = require('jest');
 const lib = require('../src/lib');
 const Intersection = require('../src/intersections');
-const Sphere = require('../src/shapes/spheres');
-const Ray = require('../src/rays');
-const Tuple = require('../src/tuples');
-const transformation = require('../src/transformations');
 const Plane = require('../src/shapes/planes');
+const Ray = require('../src/rays');
+const Sphere = require('../src/shapes/spheres');
+const transformation = require('../src/transformations');
+const Triangle = require('../src/shapes/triangles');
+const Tuple = require('../src/tuples');
 
 test('An intersection encapsulates t and object', () => {
   let s = new Sphere();
@@ -202,4 +203,13 @@ test('The Schlick approximation with small angle and n2 > n1', () => {
   let reflectance = Intersection.schlick(comps);
 
   expect(reflectance).toBeCloseTo(0.48873, lib.PRECISION);
+});
+
+test('An intersection can encapsulate \'u\' and \'v\'', () => {
+  let s = new Triangle(Tuple.point(0, 1, 0), Tuple.point(-1, 0, 0), Tuple.point(1, 0, 0));
+
+  let i = Intersection.intersectionWithUV(3.5, s, 0.2, 0.4);
+
+  expect(i.u).toBeCloseTo(0.2, lib.PRECISION);
+  expect(i.v).toBeCloseTo(0.4, lib.PRECISION);
 });
