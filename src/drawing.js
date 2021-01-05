@@ -22,6 +22,7 @@ const Tuple = require('./tuples');
 const World = require('./world');
 const { Axis, rotation, scaling, shearing, translation, viewTransform } = require('./transformations');
 const { objToGroup, parseObjFile } = require('./obj_file');
+const CSG = require('./shapes/csg');
 
 module.exports = {
   tick: function (env, proj) {
@@ -45,7 +46,7 @@ module.exports = {
       projectile = this.tick(environment, projectile);
     }
 
-    lib.writePpmFile('projectile.ppm', canvas);
+    lib.writePpmFile('./images/projectile.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -67,7 +68,7 @@ module.exports = {
       canvas.writePixel(Math.round(x), Math.round(y), new Color(1, 0.5, 0.5));
     }
 
-    lib.writePpmFile('clock.ppm', canvas);
+    lib.writePpmFile('./images/clock.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -102,7 +103,7 @@ module.exports = {
       }
     }
 
-    lib.writePpmFile('flat_circle.ppm', canvas);
+    lib.writePpmFile('./images/flat_circle.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -147,7 +148,7 @@ module.exports = {
       }
     }
 
-    lib.writePpmFile('3d_circle.ppm', canvas);
+    lib.writePpmFile('./images/3d_circle.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -212,7 +213,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('sphere_scene.ppm', canvas);
+    lib.writePpmFile('./images/sphere_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -260,7 +261,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('sphere_plane_scene.ppm', canvas);
+    lib.writePpmFile('./images/sphere_plane_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -312,7 +313,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('sphere_pattern_scene.ppm', canvas);
+    lib.writePpmFile('./images/sphere_pattern_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -352,7 +353,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('glass_ball.ppm', canvas);
+    lib.writePpmFile('./images/glass_ball.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -463,7 +464,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('reflection_refraction.ppm', canvas);
+    lib.writePpmFile('./images/reflection_refraction.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -597,7 +598,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('table_scene.ppm', canvas);
+    lib.writePpmFile('./images/table_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -722,7 +723,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('cylinder_scene.ppm', canvas);
+    lib.writePpmFile('./images/cylinder_scene.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -779,7 +780,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('hexagon.ppm', canvas);
+    lib.writePpmFile('./images/hexagon.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -796,7 +797,7 @@ module.exports = {
       .withDiffuse(0.9).withSpecular(0);
     world.objects.push(floor);
 
-    let fileData = lib.readObjFile('cube.obj');
+    let fileData = lib.readObjFile('./obj/cube.obj');
     let parser = parseObjFile(fileData);
 
     let cube = objToGroup(parser);
@@ -810,7 +811,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('cube.ppm', canvas);
+    lib.writePpmFile('./images/cube.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -819,7 +820,7 @@ module.exports = {
     let world = new World();
     world.light = Light.pointLight(Tuple.point(0, 10, -10), new Color(0.7, 0.7, 0.7));
 
-    let fileData = lib.readObjFile('teapot.obj');
+    let fileData = lib.readObjFile('./obj/teapot.obj');
     let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
     floorPattern.setPatternTransform(scaling(0.25, 0.25, 0.25));
     let floor = new Plane();
@@ -840,7 +841,7 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('teapot.ppm', canvas);
+    lib.writePpmFile('./images/teapot.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
@@ -857,7 +858,7 @@ module.exports = {
       .withDiffuse(0.9).withSpecular(0);
     world.objects.push(floor);
 
-    let fileData = lib.readObjFile('humanoid_quad.obj');
+    let fileData = lib.readObjFile('./obj/humanoid_quad.obj');
     let parser = parseObjFile(fileData);
 
     let humanoid = objToGroup(parser);
@@ -871,8 +872,127 @@ module.exports = {
     
     let canvas = camera.render(world);
 
-    lib.writePpmFile('humanoid_quad.ppm', canvas);
+    lib.writePpmFile('./images/humanoid_quad.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },
+
+  drawDie: function() {
+    let world = new World();
+    world.light = Light.pointLight(Tuple.point(0, 10, -5), new Color(1, 1, 1));
+
+    let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
+    let floor = new Plane();
+    floor.setTransform(translation(0, -1, 0));
+    floor.material = new Material().withPattern(floorPattern).withAmbient(0.2)
+      .withDiffuse(0.9).withSpecular(0);
+    world.objects.push(floor);
+
+    let diePips = new Group();
+
+    let side1 = new Sphere();
+    side1.setTransform(Matrix.multiply(translation(0, 1, 0), scaling(0.2, 0.1, 0.2)));
+    diePips.addChild(side1);
+
+    let side2 = new Group();
+    let side2Pip1 = new Sphere();
+    side2Pip1.setTransform(Matrix.multiply(translation(-0.4, 1, -0.4), scaling(0.2, 0.1, 0.2)));
+    side2.addChild(side2Pip1);
+    let side2Pip2 = new Sphere();
+    side2Pip2.setTransform(Matrix.multiply(translation(0.4, 1, 0.4), scaling(0.2, 0.1, 0.2)));
+    side2.addChild(side2Pip2);
+    side2.setTransform(rotation(Math.PI / 2, Axis.X));
+    diePips.addChild(side2);
+
+    let side3 = new Group();
+    let side3Pip1 = new Sphere();
+    side3Pip1.setTransform(Matrix.multiply(translation(0, 1, 0), scaling(0.2, 0.1, 0.2)));
+    side3.addChild(side3Pip1);
+    let side3Pip2 = new Sphere();
+    side3Pip2.setTransform(Matrix.multiply(translation(-0.5, 1, -0.5), scaling(0.2, 0.1, 0.2)));
+    side3.addChild(side3Pip2);
+    let side3Pip3 = new Sphere();
+    side3Pip3.setTransform(Matrix.multiply(translation(0.5, 1, 0.5), scaling(0.2, 0.1, 0.2)));
+    side3.addChild(side3Pip3);
+    side3.setTransform(rotation(Math.PI / 2, Axis.Z));
+    diePips.addChild(side3);
+
+    let side4 = new Group();
+    let side4Pip1 = new Sphere();
+    side4Pip1.setTransform(Matrix.multiply(translation(-0.4, 1, -0.4), scaling(0.2, 0.1, 0.2)));
+    side4.addChild(side4Pip1);
+    let side4Pip2 = new Sphere();
+    side4Pip2.setTransform(Matrix.multiply(translation(-0.4, 1, 0.4), scaling(0.2, 0.1, 0.2)));
+    side4.addChild(side4Pip2);
+    let side4Pip3 = new Sphere();
+    side4Pip3.setTransform(Matrix.multiply(translation(0.4, 1, -0.4), scaling(0.2, 0.1, 0.2)));
+    side4.addChild(side4Pip3);
+    let side4Pip4 = new Sphere();
+    side4Pip4.setTransform(Matrix.multiply(translation(0.4, 1, 0.4), scaling(0.2, 0.1, 0.2)));
+    side4.addChild(side4Pip4);
+    side4.setTransform(rotation(-Math.PI / 2, Axis.Z));
+    diePips.addChild(side4);
+
+    let side5 = new Group();
+    let side5Pip1 = new Sphere();
+    side5Pip1.setTransform(Matrix.multiply(translation(0, 1, 0), scaling(0.2, 0.1, 0.2)));
+    side5.addChild(side5Pip1);
+    let side5Pip2 = new Sphere();
+    side5Pip2.setTransform(Matrix.multiply(translation(-0.5, 1, -0.5), scaling(0.2, 0.1, 0.2)));
+    side5.addChild(side5Pip2);
+    let side5Pip3 = new Sphere();
+    side5Pip3.setTransform(Matrix.multiply(translation(0.5, 1, -0.5), scaling(0.2, 0.1, 0.2)));
+    side5.addChild(side5Pip3);
+    let side5Pip4 = new Sphere();
+    side5Pip4.setTransform(Matrix.multiply(translation(-0.5, 1, 0.5), scaling(0.2, 0.1, 0.2)));
+    side5.addChild(side5Pip4);
+    let side5Pip5 = new Sphere();
+    side5Pip5.setTransform(Matrix.multiply(translation(0.5, 1, 0.5), scaling(0.2, 0.1, 0.2)));
+    side5.addChild(side5Pip5);
+    side5.setTransform(rotation(-Math.PI / 2, Axis.X));
+    diePips.addChild(side5);
+
+    let side6 = new Group();
+    let side6Pip1 = new Sphere();
+    side6Pip1.setTransform(Matrix.multiply(translation(-0.5, 1, -0.5), scaling(0.2, 0.1, 0.2)));
+    side6.addChild(side6Pip1);
+    let side6Pip2 = new Sphere();
+    side6Pip2.setTransform(Matrix.multiply(translation(-0.5, 1, 0), scaling(0.2, 0.1, 0.2)));
+    side6.addChild(side6Pip2);
+    let side6Pip3 = new Sphere();
+    side6Pip3.setTransform(Matrix.multiply(translation(-0.5, 1, 0.5), scaling(0.2, 0.1, 0.2)));
+    side6.addChild(side6Pip3);
+    let side6Pip4 = new Sphere();
+    side6Pip4.setTransform(Matrix.multiply(translation(0.5, 1, -0.5), scaling(0.2, 0.1, 0.2)));
+    side6.addChild(side6Pip4);
+    let side6Pip5 = new Sphere();
+    side6Pip5.setTransform(Matrix.multiply(translation(0.5, 1, 0), scaling(0.2, 0.1, 0.2)));
+    side6.addChild(side6Pip5);
+    let side6Pip6 = new Sphere();
+    side6Pip6.setTransform(Matrix.multiply(translation(0.5, 1, 0.5), scaling(0.2, 0.1, 0.2)));
+    side6.addChild(side6Pip6);
+    side6.setTransform(scaling(1, -1, 1));
+    diePips.addChild(side6);
+
+    let roundedCorners = new Sphere();
+    roundedCorners.setTransform(scaling(1.5, 1.5, 1.5));
+    roundedCorners.material = new Material().withColor(new Color(1, 0, 0));
+    roundedCorners.exemptFromParent = true;
+    let dieCube = new Cube();
+    dieCube.material = new Material().withColor(new Color(0.7, 0, 0));
+    dieCube.exemptFromParent = true;
+    let dieBody = new CSG('intersection', dieCube, roundedCorners);
+    dieBody = new CSG('difference', dieBody, diePips);
+    world.objects.push(dieBody);
+
+    let camera = new Camera(200, 200, Math.PI / 3);
+    camera.transform = viewTransform(Tuple.point(2, 4, -5),
+      Tuple.point(0, 0.3, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/die.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  }
 }

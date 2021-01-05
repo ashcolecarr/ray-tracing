@@ -14,6 +14,7 @@ class Shape {
     this.material = new Material();
     this.castsShadow = true;
     this.parent = null;
+    this.exemptFromParent = false;
   }
 
   static areEqual(a, b) {
@@ -67,7 +68,7 @@ class Shape {
   }
 
   getMaterial() {
-    if (this.parent !== null) {
+    if (this.parent !== null && !this.exemptFromParent) {
       return this.parent.getMaterial();
     }
 

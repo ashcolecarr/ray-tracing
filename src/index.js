@@ -17,8 +17,9 @@ console.log('Generating data...');
 //let screenData = drawing.drawCylinderScene();
 //let screenData = drawing.drawHexagon();
 //let screenData = drawing.drawCube();
-let screenData = drawing.drawTeapot();
+//let screenData = drawing.drawTeapot();
 //let screenData = drawing.drawHumanoid();
+let screenData = drawing.drawDie();
 console.log('Done.');
 
 http.createServer(function (req, res) {
