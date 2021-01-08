@@ -3,7 +3,7 @@
 const Color = require('./colors');
 const Intersection = require('./intersections');
 const lib = require('./lib');
-const Light = require('./lights');
+const PointLight = require('./lights/point_lights');
 const Ray = require('./rays');
 const Sphere = require('./shapes/spheres');
 const transformation = require('./transformations');
@@ -12,11 +12,11 @@ const Tuple = require('./tuples');
 class World {
   constructor() {
     this.objects = [];
-    this.light = null;
+    this.lights = [];
   }
 
   static defaultWorld() {
-    let light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+    let light = new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
     let sphere1 = new Sphere();
     sphere1.material.color = new Color(0.8, 1, 0.6);
     sphere1.material.diffuse = 0.7;
@@ -25,7 +25,7 @@ class World {
     sphere2.transform = transformation.scaling(0.5, 0.5, 0.5);
 
     let world = new World();
-    world.light = light;
+    world.lights.push(light);
     world.objects.push(sphere1);
     world.objects.push(sphere2);
 
@@ -44,10 +44,13 @@ class World {
   }
 
   shadeHit(comps, remaining = 5) {
-    let shadowed = this.isShadowed(comps.overPoint);
+    let surface = new Color(0, 0, 0);
+    for (let i = 0; i < this.lights.length; i++) {
+      let intensity = this.lights[i].intensityAt(comps.overPoint, this);
 
-    let surface = comps.object.getMaterial().lighting(comps.object, this.light, 
-      comps.overPoint, comps.eyeV, comps.normalV, shadowed);
+      surface = Color.add(surface, comps.object.getMaterial().lighting(comps.object, this.lights[i], 
+        comps.overPoint, comps.eyeV, comps.normalV, intensity));
+    }
     
     let reflected = this.reflectedColor(comps, remaining);
     let refracted = this.refractedColor(comps, remaining);
@@ -76,8 +79,8 @@ class World {
     }
   }
 
-  isShadowed(point) {
-    let v = Tuple.subtract(this.light.position, point);
+  isShadowed(lightPosition, point) {
+    let v = Tuple.subtract(lightPosition, point);
     let distance = v.magnitude();
     let direction = v.normalize();
 

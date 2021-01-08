@@ -2,37 +2,36 @@ const { TestScheduler } = require('jest');
 const Color = require('../src/colors');
 const Intersection = require('../src/intersections');
 const lib = require('../src/lib');
-const Light = require('../src/lights');
 const Matrix = require('../src/matrices');
-const TestPattern = require('../src/patterns/test_patterns');
-const Ray = require('../src/rays');
 const Plane = require('../src/shapes/planes');
+const PointLight = require('../src/lights/point_lights');
+const Ray = require('../src/rays');
 const Sphere = require('../src/shapes/spheres');
-const { translation } = require('../src/transformations');
-const transformation = require('../src/transformations');
+const TestPattern = require('../src/patterns/test_patterns');
 const Tuple = require('../src/tuples');
 const World = require('../src/world');
+const { scaling, translation } = require('../src/transformations');
 
 test('Creating a world', () => {
   let w = new World();
 
   expect(w.objects).toHaveLength(0);
-  expect(w.light).toBeNull();
+  expect(w.lights).toHaveLength(0);
 });
 
 test('The default world', () => {
-  let light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+  let light = new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
   let s1 = new Sphere();
   s1.material.color = new Color(0.8, 1, 0.6);
   s1.material.diffuse = 0.7;
   s1.material.specular = 0.2;
   let s2 = new Sphere();
-  s2.transform = transformation.scaling(0.5, 0.5, 0.5);
+  s2.transform = scaling(0.5, 0.5, 0.5);
 
   let w = World.defaultWorld();
   
-  expect(Tuple.areEqual(light.position, w.light.position)).toBeTruthy();
-  expect(Color.areEqual(light.intensity, w.light.intensity)).toBeTruthy();
+  expect(Tuple.areEqual(light.position, w.lights[0].position)).toBeTruthy();
+  expect(Color.areEqual(light.intensity, w.lights[0].intensity)).toBeTruthy();
   expect(Color.areEqual(s1.material.color, w.objects[0].material.color)).toBeTruthy();
   expect(s1.material.diffuse).toBeCloseTo(w.objects[0].material.diffuse, lib.PRECISION);
   expect(s1.material.specular).toBeCloseTo(w.objects[0].material.specular, lib.PRECISION);
@@ -66,7 +65,7 @@ test('Shading an intersection', () => {
 
 test('Shading an intersection from the inside', () => {
   let w = World.defaultWorld();
-  w.light = Light.pointLight(Tuple.point(0, 0.25, 0), new Color(1, 1, 1));
+  w.lights[0] = new PointLight(Tuple.point(0, 0.25, 0), new Color(1, 1, 1));
   let r = new Ray(Tuple.point(0, 0, 0), Tuple.vector(0, 0, 1));
   let shape = w.objects[1];
   let i = new Intersection(0.5, shape);
@@ -106,41 +105,13 @@ test('The color with an intersection behind the ray', () => {
   expect(Color.areEqual(c, w.objects[1].material.color)).toBeTruthy();
 });
 
-test('There is no shadow when nothing is collinear with point and light', () => {
-  let w = World.defaultWorld();
-  let p = Tuple.point(0, 10, 0);
-
-  expect(w.isShadowed(p)).toBeFalsy();
-});
-
-test('The shadow when an object is between the point and the light', () => {
-  let w = World.defaultWorld();
-  let p = Tuple.point(10, -10, 10);
-
-  expect(w.isShadowed(p)).toBeTruthy();
-});
-
-test('There is no shadow when an object is behind the light', () => {
-  let w = World.defaultWorld();
-  let p = Tuple.point(-20, 20, -20);
-
-  expect(w.isShadowed(p)).toBeFalsy();
-});
-
-test('There is no shadow when an object is behind the point', () => {
-  let w = World.defaultWorld();
-  let p = Tuple.point(-2, 2, -2);
-
-  expect(w.isShadowed(p)).toBeFalsy();
-});
-
 test('shadeHit() is given an intersection in shadow', () => {
   let w = new World();
-  w.light = Light.pointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
+  w.lights.push(new PointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1)));
   let s1 = new Sphere();
   w.objects.push(s1);
   let s2 = new Sphere();
-  s2.transform = transformation.translation(0, 0, 10);
+  s2.transform = translation(0, 0, 10);
   w.objects.push(s2);
   let r = new Ray(Tuple.point(0, 0, 5), Tuple.vector(0, 0, 1));
   let i = new Intersection(4, s2);
@@ -168,7 +139,7 @@ test('The reflected color for a reflective material', () => {
   let w = World.defaultWorld();
   let shape = new Plane();
   shape.material.reflective = 0.5;
-  shape.transform = transformation.translation(0, -1, 0);
+  shape.transform = translation(0, -1, 0);
   w.objects.push(shape);
   let r = new Ray(Tuple.point(0, 0, -3), Tuple.vector(0, -Math.sqrt(2) / 2, Math.sqrt(2) / 2));
   let i = new Intersection(Math.sqrt(2), shape);
@@ -183,7 +154,7 @@ test('shadeHit() with a reflective material', () => {
   let w = World.defaultWorld();
   let shape = new Plane();
   shape.material.reflective = 0.5;
-  shape.setTransform(transformation.translation(0, -1, 0));
+  shape.setTransform(translation(0, -1, 0));
   w.objects.push(shape);
   let r = new Ray(Tuple.point(0, 0, -3), Tuple.vector(0, -Math.sqrt(2) / 2, Math.sqrt(2) / 2));
   let i = new Intersection(Math.sqrt(2), shape);
@@ -196,14 +167,14 @@ test('shadeHit() with a reflective material', () => {
 
 test('colorAt() with mutually reflective surfaces', () => {
   let w = new World();
-  w.light = Light.pointLight(Tuple.point(0, 0, 0), new Color(1, 1, 1));
+  w.lights.push(new PointLight(Tuple.point(0, 0, 0), new Color(1, 1, 1)));
   let lower = new Plane();
   lower.material.reflective = 1;
-  lower.setTransform(transformation.translation(0, -1, 0));
+  lower.setTransform(translation(0, -1, 0));
   w.objects.push(lower);
   let upper = new Plane();
   upper.material.reflective = 1;
-  upper.setTransform(transformation.translation(0, 1, 0));
+  upper.setTransform(translation(0, 1, 0));
   w.objects.push(upper);
   let r = new Ray(Tuple.point(0, 0, 0), Tuple.vector(0, 1, 0));
 
@@ -214,7 +185,7 @@ test('The reflected color at the maximum recursive depth', () => {
   let w = World.defaultWorld();
   let shape = new Plane();
   shape.material.reflective = 0.5;
-  shape.setTransform(transformation.translation(0, -1, 0));
+  shape.setTransform(translation(0, -1, 0));
   w.objects.push(shape);
   let r = new Ray(Tuple.point(0, 0, -3), Tuple.vector(0, -Math.sqrt(2) / 2, Math.sqrt(2) / 2));
   let i = new Intersection(Math.sqrt(2), shape);
@@ -287,14 +258,14 @@ test('The refracted color with a refracted ray', () => {
 test('shadeHit() with a transparent material', () => {
   let w = World.defaultWorld();
   let floor = new Plane();
-  floor.transform = transformation.translation(0, -1, 0);
+  floor.transform = translation(0, -1, 0);
   floor.material.transparency = 0.5;
   floor.material.refractiveIndex = 1.5;
   w.objects.push(floor);
   let ball = new Sphere();
   ball.material.color = new Color(1, 0, 0);
   ball.material.ambient = 0.5;
-  ball.transform = transformation.translation(0, -3.5, -0.5);
+  ball.transform = translation(0, -3.5, -0.5);
   w.objects.push(ball);
   let r = new Ray(Tuple.point(0, 0, -3), Tuple.vector(0, -Math.sqrt(2) / 2, Math.sqrt(2) / 2));
   let xs = Intersection.intersections(new Intersection(Math.sqrt(2), floor));
@@ -309,7 +280,7 @@ test('shadeHit() with a reflective, transparent material', () => {
   let w = World.defaultWorld();
   let r = new Ray(Tuple.point(0, 0, -3), Tuple.vector(0, -Math.sqrt(2) / 2, Math.sqrt(2) / 2));
   let floor = new Plane();
-  floor.transform = transformation.translation(0, -1, 0);
+  floor.transform = translation(0, -1, 0);
   floor.material.reflective = 0.5;
   floor.material.transparency = 0.5;
   floor.material.refractiveIndex = 1.5;
@@ -317,7 +288,7 @@ test('shadeHit() with a reflective, transparent material', () => {
   let ball = new Sphere();
   ball.material.color = new Color(1, 0, 0);
   ball.material.ambient = 0.5;
-  ball.transform = transformation.translation(0, -3.5, -0.5);
+  ball.transform = translation(0, -3.5, -0.5);
   w.objects.push(ball);
   let xs = Intersection.intersections(new Intersection(Math.sqrt(2), floor));
 
@@ -329,7 +300,7 @@ test('shadeHit() with a reflective, transparent material', () => {
 
 test('There is no shadow when object is not set to cast shadow', () => {
   let w = new World();
-  w.light = Light.pointLight(Tuple.point(0, 10, 0), new Color(1, 1, 1));
+  w.lights.push(new PointLight(Tuple.point(0, 10, 0), new Color(1, 1, 1)));
   let s = new Sphere();
   s.setTransform(translation(0, 3, 0));
   s.castsShadow = false;
@@ -337,5 +308,22 @@ test('There is no shadow when object is not set to cast shadow', () => {
   let p = new Plane();
   w.objects.push(p);
 
-  expect(w.isShadowed(Tuple.point(0, 0, 0))).toBeFalsy();
-})
+  expect(w.isShadowed(w.lights[0].position, Tuple.point(0, 0, 0))).toBeFalsy();
+});
+
+test('isShadow() tests for occlusion between two points', () => {
+  let w = World.defaultWorld();
+  let lightPosition = Tuple.point(-10, -10, -10);
+  let examples = [
+    { 'point': Tuple.point(-10, -10, 10), 'result': false },
+    { 'point': Tuple.point(10, 10, 10), 'result': true },
+    { 'point': Tuple.point(-20, -20, -20), 'result': false },
+    { 'point': Tuple.point(-5, -5, -5), 'result': false },
+  ];
+
+  for (example of examples) {
+    let result = w.isShadowed(lightPosition, example.point);
+
+    expect(result).toBe(example.result);
+  }
+});

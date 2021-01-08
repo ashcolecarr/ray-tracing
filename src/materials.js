@@ -33,41 +33,41 @@ class Material {
       lib.nearEqual(a.shininess, b.shininess);
   }
 
-  lighting(object, light, point, eyeV, normalV, inShadow) {
-    let color = this.color;
-    if (this.pattern !== null) {
-      color = this.pattern.patternAtShape(object, point);
-    }
+  lighting(object, light, point, eyeV, normalV, intensity) {
+    let color = this.pattern !== null ? 
+      this.pattern.patternAtShape(object, point) : this.color;
 
     let effectiveColor = Color.multiply(color, light.intensity);
-    let lightV = Tuple.subtract(light.position, point).normalize();
     let ambient = Color.multiply(effectiveColor, this.ambient);
+    
+    let sum = new Color(0, 0, 0);
+    let samples = light.getSamples();
+    for (let i = 0; i < samples.length; i++) {
+      let diffuse = new Color(0, 0, 0);
+      let specular = new Color(0, 0, 0);
 
-    let diffuse;
-    let specular;
-    let lightDotNormal = Tuple.dot(lightV, normalV);
-    if (lightDotNormal < 0) {
-      // Less than zero means the light is occluded by the surface.
-      diffuse = new Color(0, 0, 0);
-      specular = new Color(0, 0, 0);
-    } else {
+      let lightV = Tuple.subtract(samples[i], point).normalize();
+      let lightDotNormal = Tuple.dot(lightV, normalV);
+
+      if (lightDotNormal < 0 || lib.nearEqual(intensity, 0)) {
+        continue;
+      }
+      
       diffuse = Color.multiply(effectiveColor, this.diffuse * lightDotNormal);
 
       let reflectV = Tuple.negate(lightV).reflect(normalV);
       let reflectDotEye = Tuple.dot(reflectV, eyeV);
-      if (reflectDotEye < 0 || lib.nearEqual(reflectDotEye, 0)) {
-        specular = new Color(0, 0, 0);
-      } else {
+      if (reflectDotEye > 0) {
         let factor = Math.pow(reflectDotEye, this.shininess);
         specular = Color.multiply(light.intensity, this.specular * factor);
       }
+
+      sum = Color.add(sum, diffuse);
+      sum = Color.add(sum, specular);
     }
 
-    if (inShadow) {
-      return ambient;
-    }
-
-    return Color.add(ambient, Color.add(diffuse, specular));
+    let sumSamples = Color.divide(sum, light.samples);
+    return Color.add(ambient, Color.multiply(sumSamples, intensity));
   }
 }
 

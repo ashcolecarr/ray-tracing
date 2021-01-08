@@ -1,5 +1,6 @@
 'use-strict';
 
+const AreaLight = require('./lights/area_lights');
 const Camera = require('./camera');
 const Canvas = require('./canvas');
 const CheckersPattern = require('./patterns/checkers_patterns');
@@ -10,10 +11,10 @@ const GradientPattern = require('./patterns/gradient_patterns');
 const Group = require('./shapes/groups');
 const Intersection = require('./intersections');
 const lib = require('./lib');
-const Light = require('./lights');
 const Material = require('./materials');
 const Matrix = require('./matrices');
 const Plane = require('./shapes/planes');
+const PointLight = require('./lights/point_lights');
 const Ray = require('./rays');
 const RingPattern = require('./patterns/ring_patterns');
 const Sphere = require('./shapes/spheres');
@@ -122,7 +123,7 @@ module.exports = {
     sphere.material = new Material();
     sphere.material.color = new Color(1, 0.2, 1);
 
-    let light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+    let light = new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
 
     for (let y = 0; y < canvasPixels; y++) {
       let worldY = half - pixelSize * y;
@@ -199,7 +200,7 @@ module.exports = {
     left.material.specular = 0.3;
 
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1)));
     world.objects.push(floor);
     world.objects.push(leftWall);
     world.objects.push(rightWall);
@@ -249,7 +250,7 @@ module.exports = {
     left.material.specular = 0.3;
 
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1)));
     world.objects.push(floor);
     world.objects.push(middle);
     world.objects.push(right);
@@ -301,7 +302,7 @@ module.exports = {
     left.material.pattern = new StripedPattern(new Color(1, 0, 1), new Color(0, 1, 0));
 
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1)));
     world.objects.push(floor);
     world.objects.push(middle);
     world.objects.push(right);
@@ -342,7 +343,7 @@ module.exports = {
     airBubble.setTransform(scaling(0.5, 0.5, 0.5));
 
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(20, 10, 0), new Color(0.9, 0.9, 0.9));
+    world.lights.push(new PointLight(Tuple.point(20, 10, 0), new Color(0.9, 0.9, 0.9)));
     world.objects.push(plane);
     world.objects.push(glassBall);
     world.objects.push(airBubble);
@@ -361,7 +362,7 @@ module.exports = {
   drawReflectionRefraction: function () {
     // Draw a room scene featuring reflection and refraction.
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(-4.9, 4.9, -1), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(-4.9, 4.9, -1), new Color(1, 1, 1)));
 
     let floorPattern = new CheckersPattern(new Color(0.35, 0.35, 0.35), new Color(0.65, 0.65, 0.65));
     let floor = new Plane();
@@ -472,7 +473,7 @@ module.exports = {
   drawTableScene: function () {
     // Draw a room scene using only cubes.
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(0, 6.9, -5), new Color(1, 1, 0.9));
+    world.lights.push(new PointLight(Tuple.point(0, 6.9, -5), new Color(1, 1, 0.9)));
 
     let floorsPattern = new CheckersPattern(new Color(0, 0, 0), new Color(0.25, 0.25, 0.25));
     floorsPattern.setPatternTransform(scaling(0.07, 0.07, 0.07));
@@ -606,7 +607,7 @@ module.exports = {
   drawCylinderScene: function () {
     // Draw a scene featuring only cylinders.
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(1, 6.9, -4.9), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(1, 6.9, -4.9), new Color(1, 1, 1)));
 
     let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
     floorPattern.setPatternTransform(Matrix.multiply(rotation(0.3, Axis.Y),
@@ -768,7 +769,7 @@ module.exports = {
 
   drawHexagon: function() {
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(0, 10, 0), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(0, 10, 0), new Color(1, 1, 1)));
 
     let hexagon = this.hexagon();
     hexagon.material = new Material().withColor(new Color(1, 0, 0));
@@ -787,7 +788,7 @@ module.exports = {
 
   drawCube: function() {
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(5, 10, 0), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(5, 10, 0), new Color(1, 1, 1)));
 
     let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
     floorPattern.setPatternTransform(Matrix.multiply(rotation(0.3, Axis.Y),
@@ -818,7 +819,7 @@ module.exports = {
 
   drawTeapot: function() {
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(0, 10, -10), new Color(0.7, 0.7, 0.7));
+    world.lights.push(new PointLight(Tuple.point(0, 10, -10), new Color(0.7, 0.7, 0.7)));
 
     let fileData = lib.readObjFile('./obj/teapot.obj');
     let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
@@ -848,7 +849,7 @@ module.exports = {
 
   drawHumanoid: function() {
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(5, 10, 0), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(5, 10, 0), new Color(1, 1, 1)));
 
     let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
     floorPattern.setPatternTransform(Matrix.multiply(rotation(0.3, Axis.Y),
@@ -879,7 +880,7 @@ module.exports = {
 
   drawDie: function() {
     let world = new World();
-    world.light = Light.pointLight(Tuple.point(0, 10, -5), new Color(1, 1, 1));
+    world.lights.push(new PointLight(Tuple.point(0, 10, -5), new Color(1, 1, 1)));
 
     let floorPattern = new CheckersPattern(new Color(0.5, 0.5, 0.5), new Color(0.75, 0.75, 0.75));
     let floor = new Plane();
@@ -994,5 +995,173 @@ module.exports = {
     lib.writePpmFile('./images/die.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
-  }
+  },
+
+  drawCoverImage: function() {
+    let whiteMaterial = new Material().withAmbient(0.1).withColor(new Color(1, 1, 1))
+      .withDiffuse(0.7).withReflective(0.1).withSpecular(0);
+    let blueMaterial = new Material().withAmbient(0.1).withColor(new Color(0.537, 0.831, 0.914))
+      .withDiffuse(0.7).withReflective(0.1).withSpecular(0);
+    let redMaterial = new Material().withAmbient(0.1).withColor(new Color(0.941, 0.322, 0.388))
+      .withDiffuse(0.7).withReflective(0.1).withSpecular(0);
+    let purpleMaterial = new Material().withAmbient(0.1).withColor(new Color(0.373, 0.404, 0.55))
+      .withDiffuse(0.7).withReflective(0.1).withSpecular(0);
+
+    let standardTransform = Matrix.multiply(scaling(0.5, 0.5, 0.5), translation(1, -1, 1));
+    let largeObject = Matrix.multiply(scaling(3.5, 3.5, 3.5), standardTransform);
+    let mediumObject = Matrix.multiply(scaling(3, 3, 3), standardTransform);
+    let smallObject = Matrix.multiply(scaling(2, 2, 2), standardTransform);
+
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(50, 100, -50), new Color(1, 1, 1)));
+    world.lights.push(new PointLight(Tuple.point(-400, 50, -10), new Color(0.2, 0.2, 0.2)));
+
+    let plane = new Plane();
+    plane.material = new Material().withAmbient(1).withColor(new Color(1, 1, 1))
+      .withDiffuse(0).withSpecular(0);
+    plane.setTransform(Matrix.multiply(translation(0, 0, 500), rotation(1.5707963267948966, Axis.X)));
+    world.objects.push(plane);
+
+    let sphere = new Sphere();
+    sphere.material = new Material().withAmbient(0).withColor(new Color(0.373, 0.404, 0.55))
+      .withDiffuse(0.2).withRefractiveIndex(1.5).withReflective(0.7)
+      .withShininess(200).withSpecular(1).withTransparency(0.7);
+    sphere.setTransform(largeObject);
+    world.objects.push(sphere);
+
+    let whiteCube1 = new Cube();
+    whiteCube1.material = whiteMaterial;
+    whiteCube1.setTransform(Matrix.multiply(translation(4, 0, 0), mediumObject));
+    world.objects.push(whiteCube1);
+
+    let blueCube1 = new Cube();
+    blueCube1.material = blueMaterial;
+    blueCube1.setTransform(Matrix.multiply(translation(8.5, 1.5, -0.5), largeObject));
+    world.objects.push(blueCube1);
+
+    let redCube1 = new Cube();
+    redCube1.material = redMaterial;
+    redCube1.setTransform(Matrix.multiply(translation(0, 0, 4), largeObject));
+    world.objects.push(redCube1);
+
+    let whiteCube2 = new Cube();
+    whiteCube2.material = whiteMaterial;
+    whiteCube2.setTransform(Matrix.multiply(translation(4, 0, 4), smallObject));
+    world.objects.push(whiteCube2);
+
+    let purpleCube1 = new Cube();
+    purpleCube1.material = purpleMaterial;
+    purpleCube1.setTransform(Matrix.multiply(translation(7.5, 0.5, 4), mediumObject));
+    world.objects.push(purpleCube1);
+
+    let whiteCube3 = new Cube();
+    whiteCube3.material = whiteMaterial;
+    whiteCube3.setTransform(Matrix.multiply(translation(-0.25, 0.25, 8), mediumObject));
+    world.objects.push(whiteCube3);
+
+    let blueCube2 = new Cube();
+    blueCube2.material = blueMaterial;
+    blueCube2.setTransform(Matrix.multiply(translation(4, 1, 7.5), largeObject));
+    world.objects.push(blueCube2);
+
+    let redCube2 = new Cube();
+    redCube2.material = redMaterial;
+    redCube2.setTransform(Matrix.multiply(translation(10, 2, 7.5), mediumObject));
+    world.objects.push(redCube2);
+
+    let whiteCube4 = new Cube();
+    whiteCube4.material = whiteMaterial;
+    whiteCube4.setTransform(Matrix.multiply(translation(8, 2, 12), smallObject));
+    world.objects.push(whiteCube4);
+
+    let whiteCube5 = new Cube();
+    whiteCube5.material = whiteMaterial;
+    whiteCube5.setTransform(Matrix.multiply(translation(20, 1, 9), smallObject));
+    world.objects.push(whiteCube5);
+
+    let blueCube3 = new Cube();
+    blueCube3.material = blueMaterial;
+    blueCube3.setTransform(Matrix.multiply(translation(-0.5, -5, 0.25), largeObject));
+    world.objects.push(blueCube3);
+
+    let redCube3 = new Cube();
+    redCube3.material = redMaterial;
+    redCube3.setTransform(Matrix.multiply(translation(4, -4, 0), largeObject));
+    world.objects.push(redCube3);
+
+    let whiteCube6 = new Cube();
+    whiteCube6.material = whiteMaterial;
+    whiteCube6.setTransform(Matrix.multiply(translation(8.5, -4, 0), largeObject));
+    world.objects.push(whiteCube6);
+
+    let whiteCube7 = new Cube();
+    whiteCube7.material = whiteMaterial;
+    whiteCube7.setTransform(Matrix.multiply(translation(0, -4, 4), largeObject));
+    world.objects.push(whiteCube7);
+
+    let purpleCube2 = new Cube();
+    purpleCube2.material = purpleMaterial;
+    purpleCube2.setTransform(Matrix.multiply(translation(-0.5, -4.5, 8), largeObject));
+    world.objects.push(purpleCube2);
+
+    let whiteCube8 = new Cube();
+    whiteCube8.material = whiteMaterial;
+    whiteCube8.setTransform(Matrix.multiply(translation(0, -8, 4), largeObject));
+    world.objects.push(whiteCube8);
+
+    let whiteCube9 = new Cube();
+    whiteCube9.material = whiteMaterial;
+    whiteCube9.setTransform(Matrix.multiply(translation(-0.5, -8.5, 8), largeObject));
+    world.objects.push(whiteCube9);
+
+    let camera = new Camera(500, 500, 0.785);
+    camera.transform = viewTransform(Tuple.point(-6, 6, -10),
+      Tuple.point(6, 0, 6), Tuple.vector(-0.45, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/cover_image.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawShadowGlamorShot: function() {
+    let world = new World();
+    world.lights.push(new AreaLight(Tuple.point(-1, 2, 4), Tuple.vector(2, 0, 0), 
+      10, Tuple.vector(0, 2, 0), 10, new Color(1, 1, 1)));
+
+    let floor = new Plane();
+    floor.material = new Material().withAmbient(0.025).withColor(new Color(1, 1, 1))
+      .withDiffuse(0.67).withSpecular(0);
+    world.objects.push(floor);
+
+    let lightCube = new Cube();
+    lightCube.material = new Material().withAmbient(1)
+      .withColor(new Color(1.5, 1.5, 1.5)).withDiffuse(0).withSpecular(0);
+    lightCube.setTransform(Matrix.multiply(translation(0, 3, 4), scaling(1, 1, 0.01)));
+    lightCube.castsShadow = false;
+    world.objects.push(lightCube);
+
+    let redCube = new Sphere();
+    redCube.material = new Material().withAmbient(0.1).withColor(new Color(1, 0, 0))
+      .withDiffuse(0.6).withReflective(0.3).withSpecular(0);
+    redCube.setTransform(Matrix.multiply(translation(0.5, 0.5, 0), scaling(0.5, 0.5, 0.5)));
+    world.objects.push(redCube);
+
+    let blueCube = new Sphere();
+    blueCube.material = new Material().withAmbient(0.1).withColor(new Color(0.5, 0.5, 1))
+      .withDiffuse(0.6).withReflective(0.3).withSpecular(0);
+    blueCube.setTransform(Matrix.multiply(translation(-0.25, 0.33, 0), scaling(0.33, 0.33, 0.33)));
+    world.objects.push(blueCube);
+
+    let camera = new Camera(400, 160, 0.7854);
+    camera.transform = viewTransform(Tuple.point(-3, 1, 2.5),
+      Tuple.point(0, 0.5, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/shadow_glamor_shot.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
 }

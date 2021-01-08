@@ -30,6 +30,14 @@ class Color {
 
     return new Color(a.red * b, a.green * b, a.blue * b);
   }
+
+  static divide(a, b) {
+    if (b instanceof Color) {
+      return new Color(a.red / b.red, a.green / b.green, a.blue / b.blue);
+    }
+
+    return new Color(a.red / b, a.green / b, a.blue / b);
+  }
 }
 
 module.exports = Color;

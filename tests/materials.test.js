@@ -1,13 +1,16 @@
 const { TestScheduler } = require('jest');
+const AreaLight = require('../src/lights/area_lights');
 const Color = require('../src/colors');
 const lib = require('../src/lib');
-const Light = require('../src/lights');
+const PointLight = require('../src/lights/point_lights');
 const Material = require('../src/materials');
+const Matrix = require('../src/matrices');
 const Sphere = require('../src/shapes/spheres');
 const StripedPattern = require('../src/patterns/striped_patterns');
-const Tuple = require('../src/tuples');
 const TestPattern = require('../src/patterns/test_patterns');
-const Matrix = require('../src/matrices');
+const Tuple = require('../src/tuples');
+const World = require('../src/world');
+const Sequence = require('../src/sequences');
 
 test('The default material', () => {
   let m = new Material();
@@ -25,9 +28,9 @@ test('Lighting with the eye between the light and the surface', () => {
   let position = Tuple.point(0, 0, 0);
   let eyeV = Tuple.vector(0, 0, -1);
   let normalV = Tuple.vector(0, 0, -1);
-  let light = Light.pointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
+  let light = new PointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
 
-  let result = m.lighting(s, light, position, eyeV, normalV, false);
+  let result = m.lighting(s, light, position, eyeV, normalV, 1);
 
   expect(Color.areEqual(result, new Color(1.9, 1.9, 1.9))).toBeTruthy();
 });
@@ -38,9 +41,9 @@ test('Lighting with the eye between the light and surface, eye offset 45 degrees
   let position = Tuple.point(0, 0, 0);
   let eyeV = Tuple.vector(0, Math.sqrt(2) / 2, -Math.sqrt(2) / 2);
   let normalV = Tuple.vector(0, 0, -1);
-  let light = Light.pointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
+  let light = new PointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
 
-  let result = m.lighting(s, light, position, eyeV, normalV, false);
+  let result = m.lighting(s, light, position, eyeV, normalV, 1);
 
   expect(Color.areEqual(result, new Color(1.0, 1.0, 1.0))).toBeTruthy();
 });
@@ -51,9 +54,9 @@ test('Lighting with the eye opposite surface, light offset 45 degrees', () => {
   let position = Tuple.point(0, 0, 0);
   let eyeV = Tuple.vector(0, 0, -1);
   let normalV = Tuple.vector(0, 0, -1);
-  let light = Light.pointLight(Tuple.point(0, 10, -10), new Color(1, 1, 1));
+  let light = new PointLight(Tuple.point(0, 10, -10), new Color(1, 1, 1));
 
-  let result = m.lighting(s, light, position, eyeV, normalV, false);
+  let result = m.lighting(s, light, position, eyeV, normalV, 1);
 
   expect(Color.areEqual(result, new Color(0.7364, 0.7364, 0.7364))).toBeTruthy();
 });
@@ -64,9 +67,9 @@ test('Lighting with the eye in the path of the reflection vector', () => {
   let position = Tuple.point(0, 0, 0);
   let eyeV = Tuple.vector(0, -Math.sqrt(2) / 2, -Math.sqrt(2) / 2);
   let normalV = Tuple.vector(0, 0, -1);
-  let light = Light.pointLight(Tuple.point(0, 10, -10), new Color(1, 1, 1));
+  let light = new PointLight(Tuple.point(0, 10, -10), new Color(1, 1, 1));
 
-  let result = m.lighting(s, light, position, eyeV, normalV, false);
+  let result = m.lighting(s, light, position, eyeV, normalV, 1);
 
   expect(Color.areEqual(result, new Color(1.6364, 1.6364, 1.6364))).toBeTruthy();
 });
@@ -77,9 +80,9 @@ test('Lighting with the light behind the surface', () => {
   let position = Tuple.point(0, 0, 0);
   let eyeV = Tuple.vector(0, 0, -1);
   let normalV = Tuple.vector(0, 0, -1);
-  let light = Light.pointLight(Tuple.point(0, 0, 10), new Color(1, 1, 1));
+  let light = new PointLight(Tuple.point(0, 0, 10), new Color(1, 1, 1));
 
-  let result = m.lighting(s, light, position, eyeV, normalV, false);
+  let result = m.lighting(s, light, position, eyeV, normalV, 1);
 
   expect(Color.areEqual(result, new Color(0.1, 0.1, 0.1))).toBeTruthy();
 });
@@ -90,10 +93,10 @@ test('Lighting with the surface in shadow', () => {
   let position = Tuple.point(0, 0, 0);
   let eyeV = Tuple.vector(0, 0, -1);
   let normalV = Tuple.vector(0, 0, -1);
-  let light = Light.pointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
-  let inShadow = true;
+  let light = new PointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
+  let intensity = 0;
 
-  let result = m.lighting(s, light, position, eyeV, normalV, inShadow);
+  let result = m.lighting(s, light, position, eyeV, normalV, intensity);
 
   expect(Color.areEqual(result, new Color(0.1, 0.1, 0.1))).toBeTruthy();
 });
@@ -107,10 +110,10 @@ test('Lighting with a pattern applied', () => {
   m.specular = 0;
   let eyeV = Tuple.vector(0, 0, -1);
   let normalV = Tuple.vector(0, 0, -1);
-  let light = Light.pointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
+  let light = new PointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
 
-  let c1 = m.lighting(s, light, Tuple.point(0.9, 0, 0), eyeV, normalV, false);
-  let c2 = m.lighting(s, light, Tuple.point(1.1, 0, 0), eyeV, normalV, false);
+  let c1 = m.lighting(s, light, Tuple.point(0.9, 0, 0), eyeV, normalV, 1);
+  let c2 = m.lighting(s, light, Tuple.point(1.1, 0, 0), eyeV, normalV, 1);
 
   expect(Color.areEqual(c1, new Color(1, 1, 1))).toBeTruthy();
   expect(Color.areEqual(c2, new Color(0, 0, 0))).toBeTruthy();
@@ -148,4 +151,56 @@ test('Chained functions set properties accordingly', () => {
   expect(m.reflective).toBeCloseTo(0.5, lib.PRECISION);
   expect(m.transparency).toBeCloseTo(0.5, lib.PRECISION);
   expect(m.refractiveIndex).toBeCloseTo(0.5, lib.PRECISION);
-})
+});
+
+test('lighting() uses light intensity to attenuate color', () => {
+  let w = World.defaultWorld();
+  w.lights[0] = new PointLight(Tuple.point(0, 0, -10), new Color(1, 1, 1));
+  let shape = w.objects[0];
+  shape.material.ambient = 0.1;
+  shape.material.diffuse = 0.9;
+  shape.material.specular = 0;
+  shape.material.color = new Color(1, 1, 1);
+  let pt = Tuple.point(0, 0, -1);
+  let eyeV = Tuple.vector(0, 0, -1);
+  let normalV = Tuple.vector(0, 0, -1);
+  let examples = [
+    { 'intensity': 1, 'result': new Color(1, 1, 1) },
+    { 'intensity': 0.5, 'result': new Color(0.55, 0.55, 0.55) },
+    { 'intensity': 0, 'result': new Color(0.1, 0.1, 0.1) }
+  ];
+
+  for (example of examples) {
+    let result = shape.material.lighting(shape, w.lights[0], pt, eyeV, normalV, example.intensity);
+
+    expect(Color.areEqual(result, example.result)).toBeTruthy();
+  }
+});
+
+test('lighting() samples the area light', () => {
+  let corner = Tuple.point(-0.5, -0.5, -5);
+  let v1 = Tuple.vector(1, 0, 0);
+  let v2 = Tuple.vector(0, 1, 0);
+  let light = new AreaLight(corner, v1, 2, v2, 2, new Color(1, 1, 1));
+  light.jitterBy = new Sequence(0.5);
+  let shape = new Sphere();
+  shape.material.ambient = 0.1;
+  shape.material.diffuse = 0.9;
+  shape.material.specular = 0;
+  shape.material.color = new Color(1, 1, 1);
+  let eye = Tuple.point(0, 0, -5);
+  let examples = [
+    { 'point': Tuple.point(0, 0, -1), 'result': new Color(0.9965, 0.9965, 0.9965) },
+    { 'point': Tuple.point(0, 0.7071, -0.7071), 'result': new Color(0.62318, 0.62318, 0.62318) }
+  ];
+
+  for (example of examples) {
+    let pt = example.point;
+    let eyeV = Tuple.subtract(eye, pt).normalize();
+    let normalV = Tuple.vector(pt.x, pt.y, pt.z);
+
+    let result = shape.material.lighting(shape, light, pt, eyeV, normalV, 1);
+
+    expect(Color.areEqual(result, example.result)).toBeTruthy();
+  }
+});
