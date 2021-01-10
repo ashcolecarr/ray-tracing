@@ -47,9 +47,9 @@ class Triangle extends Shape {
 
   boundsOf() {
     let box = new BoundingBox();
-    box.add(this.p1);
-    box.add(this.p2);
-    box.add(this.p3);
+    box.addPoint(this.p1);
+    box.addPoint(this.p2);
+    box.addPoint(this.p3);
 
     return box;
   }
