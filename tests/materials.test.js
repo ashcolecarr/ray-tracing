@@ -5,12 +5,12 @@ const lib = require('../src/lib');
 const PointLight = require('../src/lights/point_lights');
 const Material = require('../src/materials');
 const Matrix = require('../src/matrices');
+const Sequence = require('../src/sequences');
 const Sphere = require('../src/shapes/spheres');
 const StripedPattern = require('../src/patterns/striped_patterns');
 const TestPattern = require('../src/patterns/test_patterns');
 const Tuple = require('../src/tuples');
 const World = require('../src/world');
-const Sequence = require('../src/sequences');
 
 test('The default material', () => {
   let m = new Material();

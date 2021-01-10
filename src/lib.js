@@ -26,6 +26,10 @@ module.exports = {
   },
 
   nearEqual: function (a, b) {
+    if (Math.abs(a) === Infinity || Math.abs(b) === Infinity) {
+      return a === b;
+    }
+
     return Math.abs(a - b) < this.EPSILON;
   },
 

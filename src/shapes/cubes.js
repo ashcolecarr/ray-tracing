@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Intersection = require('../intersections');
 const lib = require('../lib');
 const Shape = require('./shapes');
@@ -63,6 +64,10 @@ class Cube extends Shape {
     }
 
     return Tuple.vector(0, 0, point.z);
+  }
+
+  boundsOf() {
+    return new BoundingBox(Tuple.point(-1, -1, -1), Tuple.point(1, 1, 1));
   }
 }
 

@@ -105,3 +105,12 @@ test('A helper for producing a sphere with a glassy material', () => {
   expect(s.material.transparency).toBeCloseTo(1, lib.PRECISION);
   expect(s.material.refractiveIndex).toBeCloseTo(1.5, lib.PRECISION);
 });
+
+test('A sphere has a bounding box', () => {
+  let shape = new Sphere();
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-1, -1, -1))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(1, 1, 1))).toBeTruthy();
+});

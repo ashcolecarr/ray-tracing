@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Shape = require('./shapes');
 const Tuple = require('../tuples');
 
@@ -24,6 +25,10 @@ class TestShape extends Shape {
 
   localNormalAt(point, hit) {
     return Tuple.vector(point.x, point.y, point.z);
+  }
+
+  boundsOf() {
+    return new BoundingBox(Tuple.point(-1, -1, -1), Tuple.point(1, 1, 1));
   }
 }
 

@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Intersection = require('../intersections');
 const Shape = require('./shapes');
 const Tuple = require('../tuples');
@@ -37,6 +38,10 @@ class Sphere extends Shape {
     sphere.material.refractiveIndex = 1.5;
 
     return sphere;
+  }
+
+  boundsOf() {
+    return new BoundingBox(Tuple.point(-1, -1, -1), Tuple.point(1, 1, 1));
   }
 }
 

@@ -54,3 +54,12 @@ test('A ray intersecting a plane from below', () => {
   expect(xs[0].t).toBeCloseTo(1, lib.PRECISION);
   expect(xs[0].object instanceof Plane).toBeTruthy();
 });
+
+test('A plane has a bounding box', () => {
+  let shape = new Plane();
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-Infinity, 0, -Infinity))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(Infinity, 0, Infinity))).toBeTruthy();
+});

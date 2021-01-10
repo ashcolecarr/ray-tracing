@@ -2,9 +2,9 @@ const { TestScheduler } = require('jest');
 const AreaLight = require('../src/lights/area_lights');
 const Color = require('../src/colors');
 const PointLight = require('../src/lights/point_lights');
+const Sequence = require('../src/sequences');
 const Tuple = require('../src/tuples');
 const World = require('../src/world');
-const Sequence = require('../src/sequences');
 
 test('A point light has a position and intensity', () => {
   let intensity = new Color(1, 1, 1);

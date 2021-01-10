@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Group = require('./groups');
 const Shape = require('./shapes');
 
@@ -14,15 +15,19 @@ class CSG extends Shape {
   }
 
   localIntersect(ray) {
-    let leftXS = this.left.intersect(ray);
-    let rightXS = this.right.intersect(ray);
+    if (this.boundsOf().intersects(ray)) {
+      let leftXS = this.left.intersect(ray);
+      let rightXS = this.right.intersect(ray);
 
-    let xs = [];
-    xs.push(...leftXS);
-    xs.push(...rightXS);
-    xs.sort((x, y) => (x.t > y.t) ? 1 : -1);
+      let xs = [];
+      if (leftXS) { xs.push(...leftXS); }
+      if (rightXS) { xs.push(...rightXS); }
+      xs.sort((x, y) => (x.t > y.t) ? 1 : -1);
 
-    return this.filterIntersections(xs);
+      return this.filterIntersections(xs);
+    } else {
+      return [];
+    }
   }
 
   localNormalAt(point, hit) {
@@ -78,6 +83,18 @@ class CSG extends Shape {
     } else {
       return A.id === B.id;
     }
+  }
+
+  boundsOf() {
+    let box = new BoundingBox();
+
+    let leftBound = this.left.parentSpaceBoundsOf();
+    let rightBound = this.right.parentSpaceBoundsOf();
+
+    box.addBox(leftBound);
+    box.addBox(rightBound);
+
+    return box;
   }
 }
 

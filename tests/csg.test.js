@@ -5,6 +5,7 @@ const Intersection = require('../src/intersections');
 const lib = require('../src/lib');
 const Ray = require('../src/rays');
 const Sphere = require('../src/shapes/spheres');
+const TestShape = require('../src/shapes/test_shapes');
 const Tuple = require('../src/tuples');
 const { translation } = require('../src/transformations');
 
@@ -100,4 +101,40 @@ test('A ray hits a CSG object', () => {
   expect(xs[0].object.id).toBe(s1.id);
   expect(xs[1].t).toBeCloseTo(6.5, lib.PRECISION);
   expect(xs[1].object.id).toBe(s2.id);
+});
+
+test('A CSG shape has a bounding box that contains its children', () => {
+  let left = new Sphere();
+  let right = new Sphere();
+  right.setTransform(translation(2, 3, 4));
+  let shape = new CSG('difference', left, right);
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-1, -1, -1))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(3, 4, 5))).toBeTruthy();
+});
+
+test('Intersecting ray+csg doesn\'t test children if box is missed', () => {
+  let left = new TestShape();
+  let right = new TestShape();
+  let shape = new CSG('difference', left, right);
+  let r = new Ray(Tuple.point(0, 0, -5), Tuple.vector(0, 1, 0));
+
+  let xs = shape.intersect(r);
+
+  expect(left.savedRay).toBeNull();
+  expect(right.savedRay).toBeNull();
+});
+
+test('Intersecting ray+csg tests children if box is hit', () => {
+  let left = new TestShape();
+  let right = new TestShape();
+  let shape = new CSG('difference', left, right);
+  let r = new Ray(Tuple.point(0, 0, -5), Tuple.vector(0, 0, 1));
+
+  let xs = shape.intersect(r);
+
+  expect(left.savedRay).not.toBeNull();
+  expect(right.savedRay).not.toBeNull();
 });

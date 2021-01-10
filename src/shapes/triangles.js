@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Intersection = require('../intersections');
 const lib = require('../lib');
 const Shape = require('./shapes');
@@ -42,6 +43,15 @@ class Triangle extends Shape {
 
   localNormalAt(point, hit) {
     return this.normal;
+  }
+
+  boundsOf() {
+    let box = new BoundingBox();
+    box.add(this.p1);
+    box.add(this.p2);
+    box.add(this.p3);
+
+    return box;
   }
 }
 

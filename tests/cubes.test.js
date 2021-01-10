@@ -61,3 +61,12 @@ test('The normal on the surface of a cube', () => {
     expect(Tuple.areEqual(normal, normals[i])).toBeTruthy();
   }
 });
+
+test('A cube has a bounding box', () => {
+  let shape = new Cube();
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-1, -1, -1))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(1, 1, 1))).toBeTruthy();
+});

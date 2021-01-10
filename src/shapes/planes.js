@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Intersection = require('../intersections');
 const lib = require('../lib');
 const Shape = require('./shapes');
@@ -26,6 +27,10 @@ class Plane extends Shape {
 
   localNormalAt(point, hit) {
     return Tuple.vector(0, 1, 0);
+  }
+
+  boundsOf() {
+    return new BoundingBox(Tuple.point(-Infinity, 0, -Infinity), Tuple.point(Infinity, 0, Infinity));
   }
 }
 

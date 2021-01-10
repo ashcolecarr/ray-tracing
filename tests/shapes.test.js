@@ -3,10 +3,10 @@ const Group = require('../src/shapes/groups');
 const Material = require('../src/materials');
 const Matrix = require('../src/matrices');
 const Ray = require('../src/rays');
-const TestShape = require('../src/shapes/test_shapes');
-const { Axis, rotation, scaling, translation } = require('../src/transformations');
-const Tuple = require('../src/tuples');
 const Sphere = require('../src/shapes/spheres');
+const TestShape = require('../src/shapes/test_shapes');
+const Tuple = require('../src/tuples');
+const { Axis, rotation, scaling, translation } = require('../src/transformations');
 
 test('The default transformation', () => {
   let s = new TestShape();
@@ -128,4 +128,23 @@ test('Finding the normal on a child object', () => {
   let n = s.normalAt(Tuple.point(1.7321, 1.1547, -5.5774));
 
   expect(Tuple.areEqual(n, Tuple.vector(0.2857, 0.42854, -0.85716))).toBeTruthy();
+});
+
+test('Test shape has (arbitrary) bounds', () => {
+  let shape = new TestShape();
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-1, -1, -1))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(1, 1, 1))).toBeTruthy();
+});
+
+test('Querying a shape\'s bouding box in its parent\'s space', () => {
+  let shape = new Sphere();
+  shape.setTransform(Matrix.multiply(translation(1, -3, 5), scaling(0.5, 2, 4)));
+
+  let box = shape.parentSpaceBoundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(0.5, -5, 1))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(1.5, -1, 9))).toBeTruthy();
 });

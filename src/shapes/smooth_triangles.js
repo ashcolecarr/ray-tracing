@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Intersection = require('../intersections');
 const lib = require('../lib');
 const Shape = require('./shapes');
@@ -49,6 +50,15 @@ class SmoothTriangle extends Shape {
     let n1UV = Tuple.multiply(this.n1, (1 - hit.u - hit.v));
 
     return Tuple.add(n2U, Tuple.add(n3V, n1UV));
+  }
+
+  boundsOf() {
+    let box = new BoundingBox();
+    box.add(this.p1);
+    box.add(this.p2);
+    box.add(this.p3);
+
+    return box;
   }
 }
 

@@ -66,3 +66,23 @@ test('Computing the normal vector on a cone', () => {
     expect(Tuple.areEqual(n, normals[i])).toBeTruthy();
   }
 });
+
+test('An unbounded cone has a bounding box', () => {
+  let shape = new Cone();
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-Infinity, -Infinity, -Infinity))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(Infinity, Infinity, Infinity))).toBeTruthy();
+});
+
+test('A bounded cone has a bounding box', () => {
+  let shape = new Cone();
+  shape.minimum = -5;
+  shape.maximum = 3;
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-5, -5, -5))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(5, 3, 5))).toBeTruthy();
+});

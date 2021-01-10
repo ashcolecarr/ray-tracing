@@ -75,3 +75,15 @@ test('A ray strikes a triangle', () => {
   expect(xs.length).toBe(1);
   expect(xs[0].t).toBeCloseTo(2, lib.PRECISION);
 });
+
+test('A triangle has a bounding box', () => {
+  let p1 = Tuple.point(-3, 7, 2);
+  let p2 = Tuple.point(6, 2, -4);
+  let p3 = Tuple.point(2, -1, -1);
+  let shape = new Triangle(p1, p2, p3);
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-3, -1, -4))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(6, 7, 2))).toBeTruthy();
+});

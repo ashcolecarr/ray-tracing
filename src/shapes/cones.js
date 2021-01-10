@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Intersection = require('../intersections');
 const lib = require('../lib');
 const Shape = require('./shapes');
@@ -92,6 +93,14 @@ class Cone extends Shape {
       let y = Math.sqrt(dist);
       return Tuple.vector(point.x, point.y > 0 ? -y : y, point.z);
     }
+  }
+
+  boundsOf() {
+    let a = Math.abs(this.minimum);
+    let b = Math.abs(this.maximum);
+    let limit = Math.max(a, b);
+
+    return new BoundingBox(Tuple.point(-limit, this.minimum, -limit), Tuple.point(limit, this.maximum, limit));
   }
 }
 

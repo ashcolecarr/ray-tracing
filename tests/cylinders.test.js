@@ -128,3 +128,23 @@ test('The normal vector on a cylinder\'s end caps', () => {
     expect(Tuple.areEqual(n, normals[i])).toBeTruthy();
   }
 });
+
+test('An unbounded cylinder has a bounding box', () => {
+  let shape = new Cylinder();
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-1, -Infinity, -1))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(1, Infinity, 1))).toBeTruthy();
+});
+
+test('A bounded cylinder has a bounding box', () => {
+  let shape = new Cylinder();
+  shape.minimum = -5;
+  shape.maximum = 3;
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-1, -5, -1))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(1, 3, 1))).toBeTruthy();
+});

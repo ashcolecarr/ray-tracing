@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const lib = require('../lib');
 const Material = require('../materials');
 const Matrix = require('../matrices');
@@ -73,6 +74,14 @@ class Shape {
     }
 
     return this.material;
+  }
+
+  boundsOf() {
+    throw new Error('Not Implemented: Use the boundsOf method of the concrete class.');
+  }
+
+  parentSpaceBoundsOf() {
+    return BoundingBox.transform(this.boundsOf(), this.transform);
   }
 }
 

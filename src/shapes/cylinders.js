@@ -1,5 +1,6 @@
 'use-strict';
 
+const BoundingBox = require('../bounds');
 const Intersection = require('../intersections');
 const lib = require('../lib');
 const Shape = require('./shapes');
@@ -83,6 +84,10 @@ class Cylinder extends Shape {
     } else {
       return Tuple.vector(point.x, 0, point.z);
     }
+  }
+
+  boundsOf() {
+    return new BoundingBox(Tuple.point(-1, this.minimum, -1), Tuple.point(1, this.maximum, 1));
   }
 }
 

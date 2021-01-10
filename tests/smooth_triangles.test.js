@@ -70,3 +70,18 @@ test('Preparing the normal on a smooth triangle', () => {
 
   expect(Tuple.areEqual(comps.normalV, Tuple.vector(-0.5547, 0.83205, 0))).toBeTruthy();
 });
+
+test('A smooth triangle has a bounding box', () => {
+  let p1 = Tuple.point(-3, 7, 2);
+  let p2 = Tuple.point(6, 2, -4);
+  let p3 = Tuple.point(2, -1, -1);
+  let n1 = Tuple.vector(-3, 7, 2);
+  let n2 = Tuple.vector(6, 2, -4);
+  let n3 = Tuple.vector(2, -1, -1);
+  let shape = new SmoothTriangle(p1, p2, p3, n1, n2, n3);
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-3, -1, -4))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(6, 7, 2))).toBeTruthy();
+});

@@ -1,7 +1,8 @@
 const { TestScheduler } = require('jest');
+const Cylinder = require('../src/shapes/cylinders');
+const Group = require('../src/shapes/groups');
 const Matrix = require('../src/matrices');
 const Ray = require('../src/rays');
-const Group = require('../src/shapes/groups');
 const Sphere = require('../src/shapes/spheres');
 const TestShape = require('../src/shapes/test_shapes');
 const Tuple = require('../src/tuples');
@@ -66,4 +67,43 @@ test('Intersecting a transformed group', () => {
   let xs = g.intersect(r);
 
   expect(xs.length).toBe(2);
+});
+
+test('A group has a bounding box that contains its children', () => {
+  let s = new Sphere();
+  s.setTransform(Matrix.multiply(translation(2, 5, -3), scaling(2, 2, 2)));
+  let c = new Cylinder();
+  c.minimum = -2;
+  c.maximum = 2;
+  c.setTransform(Matrix.multiply(translation(-4, -1, 4), scaling(0.5, 1, 0.5)));
+  let shape = new Group();
+  shape.addChild(s);
+  shape.addChild(c);
+
+  let box = shape.boundsOf();
+
+  expect(Tuple.areEqual(box.min, Tuple.point(-4.5, -3, -5))).toBeTruthy();
+  expect(Tuple.areEqual(box.max, Tuple.point(4, 7, 4.5))).toBeTruthy();
+});
+
+test('Intersecting ray+group doesn\'t test children if box is missed', () => {
+  let child = new TestShape();
+  let shape = new Group();
+  shape.addChild(child);
+  let r = new Ray(Tuple.point(0, 0, -5), Tuple.vector(0, 1, 0));
+
+  let xs = shape.intersect(r);
+
+  expect(child.savedRay).toBeNull();
+});
+
+test('Intersecting ray+group tests children if box is hit', () => {
+  let child = new TestShape();
+  let shape = new Group();
+  shape.addChild(child);
+  let r = new Ray(Tuple.point(0, 0, -5), Tuple.vector(0, 0, 1));
+
+  let xs = shape.intersect(r);
+
+  expect(child.savedRay).not.toBeNull();
 });
