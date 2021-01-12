@@ -104,6 +104,35 @@ class BoundingBox {
 
     return [tMin, tMax];
   }
+
+  splitBounds() {
+    let dx = this.max.x - this.min.x;
+    let dy = this.max.y - this.min.y;
+    let dz = this.max.z - this.min.z;
+    let greatest = Math.max(dx, dy, dz);
+
+    let [x0, y0, z0] = [this.min.x, this.min.y, this.min.z];
+    let [x1, y1, z1] = [this.max.x, this.max.y, this.max.z];
+
+    if (lib.nearEqual(greatest, dx)) {
+      x1 = x0 + dx / 2;
+      x0 = x1;
+    } else if (lib.nearEqual(greatest, dy)) {
+      y1 = y0 + dy / 2;
+      y0 = y1;
+    } else {
+      z1 = z0 + dz / 2;
+      z0 = z1;
+    }
+
+    let midMin = Tuple.point(x0, y0, z0);
+    let midMax = Tuple.point(x1, y1, z1);
+    
+    let left = new BoundingBox(this.min, midMax);
+    let right = new BoundingBox(midMin, this.max);
+
+    return [left, right];
+  }
 }
 
 module.exports = BoundingBox;

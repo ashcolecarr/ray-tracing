@@ -8,6 +8,7 @@ const Sphere = require('../src/shapes/spheres');
 const TestShape = require('../src/shapes/test_shapes');
 const Tuple = require('../src/tuples');
 const { translation } = require('../src/transformations');
+const Group = require('../src/shapes/groups');
 
 test('CSG is created with an operation and two shapes', () => {
   let s1 = new Sphere();
@@ -137,4 +138,31 @@ test('Intersecting ray+csg tests children if box is hit', () => {
 
   expect(left.savedRay).not.toBeNull();
   expect(right.savedRay).not.toBeNull();
+});
+
+test('Subdividing a CSG shape subdivides its children', () => {
+  let s1 = new Sphere();
+  s1.setTransform(translation(-1.5, 0, 0));
+  let s2 = new Sphere();
+  s2.setTransform(translation(1.5, 0, 0));
+  let left = new Group();
+  left.addChild(s1);
+  left.addChild(s2);
+  let s3 = new Sphere();
+  s3.setTransform(translation(0, 0, -1.5));
+  let s4 = new Sphere();
+  s4.setTransform(translation(0, 0, 1.5));
+  let right = new Group();
+  right.addChild(s3);
+  right.addChild(s4);
+  let shape = new CSG('difference', left, right);
+
+  shape.divide(1);
+
+  expect(shape.left instanceof Group).toBeTruthy();
+  expect(shape.left.children[0].children[0].id).toBe(s1.id);
+  expect(shape.left.children[1].children[0].id).toBe(s2.id);
+  expect(shape.right instanceof Group).toBeTruthy();
+  expect(shape.right.children[0].children[0].id).toBe(s3.id);
+  expect(shape.right.children[1].children[0].id).toBe(s4.id);
 });

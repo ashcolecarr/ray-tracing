@@ -83,6 +83,11 @@ class Shape {
   parentSpaceBoundsOf() {
     return BoundingBox.transform(this.boundsOf(), this.transform);
   }
+
+  divide(threshold) {
+    // Don't do anything.
+    return;
+  }
 }
 
 module.exports = Shape;

@@ -96,6 +96,11 @@ class CSG extends Shape {
 
     return box;
   }
+
+  divide(threshold) {
+    this.left.divide(threshold);
+    this.right.divide(threshold);
+  }
 }
 
 module.exports = CSG;

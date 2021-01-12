@@ -148,3 +148,11 @@ test('Querying a shape\'s bouding box in its parent\'s space', () => {
   expect(Tuple.areEqual(box.min, Tuple.point(0.5, -5, 1))).toBeTruthy();
   expect(Tuple.areEqual(box.max, Tuple.point(1.5, -1, 9))).toBeTruthy();
 });
+
+test('Subdividing a primitive does nothing', () => {
+  let shape = new Sphere();
+
+  shape.divide(1);
+
+  expect(shape instanceof Sphere).toBeTruthy();
+});

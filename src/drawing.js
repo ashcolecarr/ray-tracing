@@ -834,6 +834,7 @@ module.exports = {
     let teapot = objToGroup(parser);
     teapot.material = new Material().withReflective(.6);
     teapot.setTransform(rotation(-Math.PI / 2, Axis.X));
+    teapot.divide(5);
     world.objects.push(teapot);
 
     let camera = new Camera(400, 400, Math.PI / 6);
@@ -1161,6 +1162,141 @@ module.exports = {
     let canvas = camera.render(world);
 
     lib.writePpmFile('./images/shadow_glamor_shot.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawDragons: function() {
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(-10, 100, -100), new Color(1, 1, 1)));
+    world.lights.push(new PointLight(Tuple.point(0, 100, 0), new Color(0.1, 0.1, 0.1)));
+    world.lights.push(new PointLight(Tuple.point(100, 10, -25), new Color(0.2, 0.2, 0.2)));
+    world.lights.push(new PointLight(Tuple.point(-100, 10, -25), new Color(0.2, 0.2, 0.2)));
+
+    let fileData = lib.readObjFile('./obj/dragon.obj');
+    let parser = parseObjFile(fileData);
+
+    let rawBBox = new Cube();
+    rawBBox.castsShadow = false;
+    rawBBox.setTransform(Matrix.multiply(translation(-3.9863, -0.1217, -1.1820),
+      Matrix.multiply(scaling(3.73335, 2.5845, 1.6283), translation(1, 1, 1))));
+
+    let dragon = objToGroup(parser);
+    dragon.divide(500);
+    dragon.setTransform(Matrix.multiply(scaling(0.268, 0.268, 0.268), translation(0, 0.1217, 0)));
+
+    let bBox = rawBBox;
+    bBox.setTransform(Matrix.multiply(scaling(0.268, 0.268, 0.268), translation(0, 0.1217, 0)));
+
+    let pedestal = new Cylinder();
+    pedestal.min = -0.15;
+    pedestal.max = 0;
+    pedestal.closed = true;
+    pedestal.material = new Material().withAmbient(0).withColor(new Color(0.2, 0.2, 0.2))
+      .withDiffuse(0.8).withReflective(0.2).withSpecular(0);
+
+    // Scene
+
+    let dragon1 = dragon;
+    dragon1.material = new Material().withAmbient(0.1).withColor(new Color(1, 0, 0.1))
+      .withDiffuse(0.6).withShininess(15).withSpecular(0.3);
+    let bBox1 = bBox;
+    bBox1.material = new Material().withAmbient(0).withDiffuse(0.4)
+      .withRefractiveIndex(1).withSpecular(0).withTransparency(0.6);
+    let subgroup1 = new Group(); 
+    subgroup1.addChild(dragon1);
+    subgroup1.addChild(bBox1);
+    let group1 = new Group();
+    group1.addChild(pedestal);
+    group1.addChild(subgroup1);
+    group1.setTransform(translation(0, 2, 0));
+    world.objects.push(group1);
+
+    let dragon2 = dragon;
+    dragon2.material = new Material().withAmbient(0.1).withColor(new Color(1, 0.5, 0.1))
+      .withDiffuse(0.6).withShininess(15).withSpecular(0.3);
+    let bBox2 = bBox;
+    bBox2.material = new Material().withAmbient(0).withDiffuse(0.2)
+      .withRefractiveIndex(1).withSpecular(0).withTransparency(0.8);
+    let subgroup2 = new Group(); 
+    subgroup2.addChild(dragon2);
+    subgroup2.addChild(bBox2);
+    subgroup2.setTransform(Matrix.multiply(scaling(0.75, 0.75, 0.75),
+      rotation(4, Axis.Y)));
+    let group2 = new Group();
+    group2.addChild(pedestal);
+    group2.addChild(subgroup2);
+    group2.setTransform(translation(2, 1, -1));
+    world.objects.push(group2);
+
+    let dragon3 = dragon;
+    dragon3.material = new Material().withAmbient(0.1).withColor(new Color(0.9, 0.5, 0.1))
+      .withDiffuse(0.6).withShininess(15).withSpecular(0.3);
+    let bBox3 = bBox;
+    bBox3.material = new Material().withAmbient(0).withDiffuse(0.2)
+      .withRefractiveIndex(1).withSpecular(0).withTransparency(0.8);
+    let subgroup3 = new Group(); 
+    subgroup3.addChild(dragon3);
+    subgroup3.addChild(bBox3);
+    subgroup3.setTransform(Matrix.multiply(scaling(0.75, 0.75, 0.75),
+      rotation(-0.4, Axis.Y)));
+    let group3 = new Group();
+    group3.addChild(pedestal);
+    group3.addChild(subgroup3);
+    group3.setTransform(translation(-2, 0.75, -1));
+    world.objects.push(group3);
+
+    let dragon4 = dragon;
+    dragon4.material = new Material().withAmbient(0.1).withColor(new Color(1, 0.9, 0.1))
+      .withDiffuse(0.6).withShininess(15).withSpecular(0.3);
+    let bBox4 = bBox;
+    bBox4.material = new Material().withAmbient(0).withDiffuse(0.1)
+      .withRefractiveIndex(1).withSpecular(0).withTransparency(0.9);
+    let subgroup4 = new Group(); 
+    subgroup4.addChild(dragon4);
+    subgroup4.addChild(bBox4);
+    subgroup4.setTransform(Matrix.multiply(scaling(0.5, 0.5, 0.5),
+      rotation(-0.2, Axis.Y)));
+    let group4 = new Group();
+    group4.addChild(pedestal);
+    group4.addChild(subgroup4);
+    group4.setTransform(translation(-4, 0, -2));
+    world.objects.push(group4);
+
+    let dragon5 = dragon;
+    dragon5.material = new Material().withAmbient(0.1).withColor(new Color(0.9, 1, 0.1))
+      .withDiffuse(0.6).withShininess(15).withSpecular(0.3);
+    let bBox5 = bBox;
+    bBox5.material = new Material().withAmbient(0).withDiffuse(0.1)
+      .withRefractiveIndex(1).withSpecular(0).withTransparency(0.9);
+    let subgroup5 = new Group(); 
+    subgroup5.addChild(dragon5);
+    subgroup5.addChild(bBox5);
+    subgroup5.setTransform(Matrix.multiply(scaling(0.5, 0.5, 0.5),
+      rotation(3.3, Axis.Y)));
+    let group5 = new Group();
+    group5.addChild(pedestal);
+    group5.addChild(subgroup5);
+    group5.setTransform(translation(4, 0, -2));
+    world.objects.push(group5);
+
+    let dragon6 = dragon;
+    dragon6.material = new Material().withAmbient(0.1).withColor(new Color(1, 1, 1))
+      .withDiffuse(0.6).withShininess(16).withSpecular(0.3);
+    dragon6.setTransform(rotation(3.1415, Axis.Y));
+    let group6 = new Group();
+    group6.addChild(pedestal);
+    group6.addChild(dragon6);
+    group6.setTransform(translation(0, 0.5, -4));
+    world.objects.push(group6);
+
+    let camera = new Camera(500, 200, 1.2);
+    camera.transform = viewTransform(Tuple.point(0, 2.5, -10),
+      Tuple.point(0, 1, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/dragons.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },

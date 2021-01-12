@@ -146,3 +146,47 @@ test('Intersecting a ray with a non-cubic bounding box', () => {
     expect(result).toBe(example.result);
   }
 });
+
+test('Splitting a perfect cube', () => {
+  let box = new BoundingBox(Tuple.point(-1, -4, -5), Tuple.point(9, 6, 5));
+
+  let [left, right] = box.splitBounds();
+
+  expect(Tuple.areEqual(left.min, Tuple.point(-1, -4, -5))).toBeTruthy();
+  expect(Tuple.areEqual(left.max, Tuple.point(4, 6, 5))).toBeTruthy();
+  expect(Tuple.areEqual(right.min, Tuple.point(4, -4, -5))).toBeTruthy();
+  expect(Tuple.areEqual(right.max, Tuple.point(9, 6, 5))).toBeTruthy();
+});
+
+test('Splitting an x-wide box', () => {
+  let box = new BoundingBox(Tuple.point(-1, -2, -3), Tuple.point(9, 5.5, 3));
+
+  let [left, right] = box.splitBounds();
+
+  expect(Tuple.areEqual(left.min, Tuple.point(-1, -2, -3))).toBeTruthy();
+  expect(Tuple.areEqual(left.max, Tuple.point(4, 5.5, 3))).toBeTruthy();
+  expect(Tuple.areEqual(right.min, Tuple.point(4, -2, -3))).toBeTruthy();
+  expect(Tuple.areEqual(right.max, Tuple.point(9, 5.5, 3))).toBeTruthy();
+});
+
+test('Splitting a y-wide box', () => {
+  let box = new BoundingBox(Tuple.point(-1, -2, -3), Tuple.point(5, 8, 3));
+
+  let [left, right] = box.splitBounds();
+
+  expect(Tuple.areEqual(left.min, Tuple.point(-1, -2, -3))).toBeTruthy();
+  expect(Tuple.areEqual(left.max, Tuple.point(5, 3, 3))).toBeTruthy();
+  expect(Tuple.areEqual(right.min, Tuple.point(-1, 3, -3))).toBeTruthy();
+  expect(Tuple.areEqual(right.max, Tuple.point(5, 8, 3))).toBeTruthy();
+});
+
+test('Splitting a z-wide box', () => {
+  let box = new BoundingBox(Tuple.point(-1, -2, -3), Tuple.point(5, 3, 7));
+
+  let [left, right] = box.splitBounds();
+
+  expect(Tuple.areEqual(left.min, Tuple.point(-1, -2, -3))).toBeTruthy();
+  expect(Tuple.areEqual(left.max, Tuple.point(5, 3, 2))).toBeTruthy();
+  expect(Tuple.areEqual(right.min, Tuple.point(-1, -2, 2))).toBeTruthy();
+  expect(Tuple.areEqual(right.max, Tuple.point(5, 3, 7))).toBeTruthy();
+});

@@ -107,3 +107,87 @@ test('Intersecting ray+group tests children if box is hit', () => {
 
   expect(child.savedRay).not.toBeNull();
 });
+
+test('Partitioning a group\'s children', () => {
+  let s1 = new Sphere();
+  s1.setTransform(translation(-2, 0, 0));
+  let s2 = new Sphere();
+  s2.setTransform(translation(2, 0, 0));
+  let s3 = new Sphere();
+  let g = new Group();
+  g.addChild(s1);
+  g.addChild(s2);
+  g.addChild(s3);
+
+  let [left, right] = g.partitionChildren();
+
+  expect(g.children.length).toBe(1);
+  expect(g.children[0].id).toBe(s3.id);
+  expect(left[0].id).toBe(s1.id);
+  expect(right[0].id).toBe(s2.id);
+});
+
+test('Creating a sub-group from a list of children', () => {
+  let s1 = new Sphere();
+  let s2 = new Sphere();
+  let g = new Group();
+
+  g.makeSubgroup([s1, s2]);
+
+  expect(g.children.length).toBe(1);
+  expect(g.children[0] instanceof Group).toBeTruthy();
+  expect(g.children[0].children[0].id).toBe(s1.id);
+  expect(g.children[0].children[1].id).toBe(s2.id);
+});
+
+test('Subdividing a group partitions its children', () => {
+  let s1 = new Sphere();
+  s1.setTransform(translation(-2, -2, 0));
+  let s2 = new Sphere();
+  s2.setTransform(translation(-2, 2, 0));
+  let s3 = new Sphere();
+  s3.setTransform(scaling(4, 4, 4));
+  let g = new Group();
+  g.addChild(s1);
+  g.addChild(s2);
+  g.addChild(s3);
+
+  g.divide(1);
+
+  expect(g.children[0].id).toBe(s3.id);
+  let subgroup = g.children[1];
+  expect(subgroup instanceof Group).toBeTruthy();
+  expect(subgroup.children.length).toBe(2);
+  expect(subgroup.children[0] instanceof Group).toBeTruthy();
+  expect(subgroup.children[0].children[0].id).toBe(s1.id);
+  expect(subgroup.children[1] instanceof Group).toBeTruthy();
+  expect(subgroup.children[1].children[0].id).toBe(s2.id);
+});
+
+test('Subdividing a group partitions its children', () => {
+  let s1 = new Sphere();
+  s1.setTransform(translation(-2, 0, 0));
+  let s2 = new Sphere();
+  s2.setTransform(translation(2, 1, 0));
+  let s3 = new Sphere();
+  s3.setTransform(translation(2, -1, 0));
+  let subgroup = new Group();
+  subgroup.addChild(s1);
+  subgroup.addChild(s2);
+  subgroup.addChild(s3);
+  let s4 = new Sphere();
+  let g = new Group();
+  g.addChild(subgroup);
+  g.addChild(s4);
+
+  g.divide(3);
+
+  expect(g.children[0].id).toBe(subgroup.id);
+  expect(g.children[1].id).toBe(s4.id);
+  expect(g.children[0].children.length).toBe(2);
+  expect(g.children[0].children[0] instanceof Group).toBeTruthy();
+  expect(g.children[0].children[0].children[0].id).toBe(s1.id);
+  expect(g.children[0].children[1] instanceof Group).toBeTruthy();
+  expect(g.children[0].children[1].children[0].id).toBe(s2.id);
+  expect(g.children[0].children[1].children[1].id).toBe(s3.id);
+});
