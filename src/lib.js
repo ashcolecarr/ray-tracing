@@ -81,5 +81,13 @@ module.exports = {
     } catch(e) {
       throw e;
     }
+  },
+
+  modulo: function(a, n) {
+    /* Taken from the Mozilla page: "To obtain a modulo (and not a
+     * remainder) in JavaScript, in place of a % n, 
+     * use ((a % n ) + n ) % n.
+     */
+    return ((a % n) + n) % n;
   }
 }

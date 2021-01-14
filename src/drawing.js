@@ -5,7 +5,9 @@ const Camera = require('./camera');
 const Canvas = require('./canvas');
 const CheckersPattern = require('./patterns/checkers_patterns');
 const Color = require('./colors');
+const CSG = require('./shapes/csg');
 const Cube = require('./shapes/cubes');
+const CubeMapPattern = require('./patterns/cube_map_patterns');
 const Cylinder = require('./shapes/cylinders');
 const GradientPattern = require('./patterns/gradient_patterns');
 const Group = require('./shapes/groups');
@@ -19,11 +21,13 @@ const Ray = require('./rays');
 const RingPattern = require('./patterns/ring_patterns');
 const Sphere = require('./shapes/spheres');
 const StripedPattern = require('./patterns/striped_patterns');
+const TextureMapPattern = require('./patterns/texture_map_patterns');
 const Tuple = require('./tuples');
 const World = require('./world');
+const UVAlignCheckPattern = require('./patterns/uv_align_check_patterns');
+const UVCheckersPattern = require('./patterns/uv_checkers_patterns');
 const { Axis, rotation, scaling, shearing, translation, viewTransform } = require('./transformations');
 const { objToGroup, parseObjFile } = require('./obj_file');
-const CSG = require('./shapes/csg');
 
 module.exports = {
   tick: function (env, proj) {
@@ -1297,6 +1301,184 @@ module.exports = {
     let canvas = camera.render(world);
 
     lib.writePpmFile('./images/dragons.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawCheckeredSphere: function() {
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1)));
+
+    let sphere = new Sphere();
+    let texture = new UVCheckersPattern(20, 10, new Color(0, 0.5, 0), new Color(1, 1, 1));
+    let pattern = new TextureMapPattern(texture, 'spherical');
+    sphere.material = new Material().withAmbient(0.1).withDiffuse(0.6)
+      .withPattern(pattern).withShininess(10).withSpecular(0.4);
+    world.objects.push(sphere);
+
+    let camera = new Camera(400, 400, 0.5);
+    camera.transform = viewTransform(Tuple.point(0, 0, -5),
+      Tuple.point(0, 0, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/checkered_sphere.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawCheckeredPlane: function() {
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1)));
+
+    let plane = new Plane();
+    let texture = new UVCheckersPattern(2, 2, new Color(0, 0.5, 0), new Color(1, 1, 1));
+    let pattern = new TextureMapPattern(texture, 'planar');
+    plane.material = new Material().withAmbient(0.1).withDiffuse(0.9)
+      .withPattern(pattern).withSpecular(0);
+    world.objects.push(plane);
+
+    let camera = new Camera(400, 400, 0.5);
+    camera.transform = viewTransform(Tuple.point(1, 2, -5),
+      Tuple.point(0, 0, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/checkered_sphere.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawCheckeredCylinder: function() {
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1)));
+
+    let cylinder = new Cylinder();
+    cylinder.minimum = 0;
+    cylinder.maximum = 1;
+    cylinder.setTransform(Matrix.multiply(scaling(1, 3.1415, 1), translation(0, -0.5, 0)));
+    let texture = new UVCheckersPattern(16, 8, new Color(0, 0.5, 0), new Color(1, 1, 1));
+    let pattern = new TextureMapPattern(texture, 'cylindrical');
+    cylinder.material = new Material().withAmbient(0.1).withDiffuse(0.8)
+      .withPattern(pattern).withShininess(15).withSpecular(0);
+    world.objects.push(cylinder);
+
+    let camera = new Camera(400, 400, 0.5);
+    camera.transform = viewTransform(Tuple.point(0, 0, -10),
+      Tuple.point(0, 0, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/checkered_cylinder.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawAlignCheckPlane: function() {
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(-10, 10, -10), new Color(1, 1, 1)));
+
+    let plane = new Plane();
+    let texture = new UVAlignCheckPattern(new Color(1, 1, 1), new Color(1, 0, 0),
+      new Color(1, 1, 0), new Color(0, 1, 0), new Color(0, 1, 1));
+    let pattern = new TextureMapPattern(texture, 'planar');
+    plane.material = new Material().withAmbient(0.1).withDiffuse(0.8)
+      .withPattern(pattern);
+    world.objects.push(plane);
+
+    let camera = new Camera(400, 400, 0.5);
+    camera.transform = viewTransform(Tuple.point(1, 2, -5),
+      Tuple.point(0, 0, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/align_check_plane.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawCheckeredCube: function() {
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(0, 100, -100), new Color(0.25, 0.25, 0.25)));
+    world.lights.push(new PointLight(Tuple.point(0, -100, -100), new Color(0.25, 0.25, 0.25)));
+    world.lights.push(new PointLight(Tuple.point(-100, 0, -100), new Color(0.25, 0.25, 0.25)));
+    world.lights.push(new PointLight(Tuple.point(100, 0, -100), new Color(0.25, 0.25, 0.25)));
+
+    let red = new Color(1, 0, 0);
+    let yellow = new Color(1, 1, 0);
+    let brown = new Color(1, 0.5, 0);
+    let green = new Color(0, 1, 0);
+    let cyan = new Color(0, 1, 1);
+    let blue = new Color(0, 0, 1);
+    let purple = new Color(1, 0, 1);
+    let white = new Color(1, 1, 1);
+
+    let left = new UVAlignCheckPattern(yellow, cyan, red, blue, brown);
+    let front = new UVAlignCheckPattern(cyan, red, yellow, brown, green);
+    let right = new UVAlignCheckPattern(red, yellow, purple, green, white);
+    let back = new UVAlignCheckPattern(green, purple, cyan, white, blue);
+    let up = new UVAlignCheckPattern(brown, cyan, purple, red, yellow);
+    let down = new UVAlignCheckPattern(purple, brown, green, blue, white);
+    let mapping = new CubeMapPattern(left, front, right, back, up, down);
+
+    let cubeMaterial = new Material().withAmbient(0.2).withDiffuse(0.8)
+      .withPattern(mapping).withSpecular(0);
+    
+    let cube1 = new Cube();
+    cube1.material = cubeMaterial;
+    cube1.setTransform(Matrix.multiply(translation(-6, 2, 0), 
+      Matrix.multiply(rotation(0.7854, Axis.X), rotation(0.7854, Axis.Y))));
+    world.objects.push(cube1);
+    
+    let cube2 = new Cube();
+    cube2.material = cubeMaterial;
+    cube2.setTransform(Matrix.multiply(translation(-2, 2, 0), 
+      Matrix.multiply(rotation(0.7854, Axis.X), rotation(2.3562, Axis.Y))));
+    world.objects.push(cube2);
+    
+    let cube3 = new Cube();
+    cube3.material = cubeMaterial;
+    cube3.setTransform(Matrix.multiply(translation(2, 2, 0), 
+      Matrix.multiply(rotation(0.7854, Axis.X), rotation(3.927, Axis.Y))));
+    world.objects.push(cube3);
+    
+    let cube4 = new Cube();
+    cube4.material = cubeMaterial;
+    cube4.setTransform(Matrix.multiply(translation(6, 2, 0), 
+      Matrix.multiply(rotation(0.7854, Axis.X), rotation(5.4978, Axis.Y))));
+    world.objects.push(cube4);
+   
+    let cube5 = new Cube();
+    cube5.material = cubeMaterial;
+    cube5.setTransform(Matrix.multiply(translation(-6, -2, 0), 
+      Matrix.multiply(rotation(-0.7854, Axis.X), rotation(0.7854, Axis.Y))));
+    world.objects.push(cube5);
+    
+    let cube6 = new Cube();
+    cube6.material = cubeMaterial;
+    cube6.setTransform(Matrix.multiply(translation(-2, -2, 0), 
+      Matrix.multiply(rotation(-0.7854, Axis.X), rotation(2.3562, Axis.Y))));
+    world.objects.push(cube6);
+    
+    let cube7 = new Cube();
+    cube7.material = cubeMaterial;
+    cube7.setTransform(Matrix.multiply(translation(2, -2, 0), 
+      Matrix.multiply(rotation(-0.7854, Axis.X), rotation(3.927, Axis.Y))));
+    world.objects.push(cube7);
+    
+    let cube8 = new Cube();
+    cube8.material = cubeMaterial;
+    cube8.setTransform(Matrix.multiply(translation(6, -2, 0), 
+      Matrix.multiply(rotation(-0.7854, Axis.X), rotation(5.4978, Axis.Y))));
+    world.objects.push(cube8);
+
+    let camera = new Camera(800, 400, 0.8);
+    camera.transform = viewTransform(Tuple.point(0, 0, -20),
+      Tuple.point(0, 0, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/checkered_cube.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },

@@ -1,6 +1,7 @@
 'use-strict';
 
-const Matrix = require("../matrices");
+const Color = require('../colors');
+const Matrix = require('../matrices');
 
 /**
  * Abstract class Pattern not meant to be used directly.
@@ -25,6 +26,10 @@ class Pattern {
 
   patternAt(point) {
     throw new Error('Not Implemented: Use the patternAt method of the concrete class.');
+  }
+
+  uvPatternAt(u, v) {
+    return new Color(0, 0, 0);
   }
 }
 

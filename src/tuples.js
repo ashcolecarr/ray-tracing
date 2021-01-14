@@ -71,6 +71,115 @@ class Tuple {
   reflect(normal) {
     return Tuple.subtract(this, Tuple.multiply(normal, 2 * Tuple.dot(this, normal)));
   }
+
+  sphericalMap() {
+    let theta = Math.atan2(this.x, this.z);
+
+    let vec = Tuple.vector(this.x, this.y, this.z);
+    let radius = vec.magnitude();
+
+    let phi = Math.acos(this.y / radius);
+
+    let rawU = theta / (2 * Math.PI);
+
+    let u = 1 - (rawU + 0.5);
+
+    let v = 1 - phi / Math.PI;
+
+    return [u, v];
+  }
+
+  planarMap() {
+    /* Taken from the Mozilla page: "To obtain a modulo (and not a
+     * remainder) in JavaScript, in place of a % n, 
+     * use ((a % n ) + n ) % n.
+     */
+    let u = lib.modulo(this.x, 1);
+    let v = lib.modulo(this.z, 1);
+
+    return [u, v];
+  }
+
+  cylindricalMap() {
+    let theta = Math.atan2(this.x, this.z);
+    let rawU = theta / (2 * Math.PI);
+    let u = 1 - (rawU + 0.5);
+
+    let v = ((this.y % 1) + 1) % 1;
+
+    return [u, v];
+  }
+
+  faceFromPoint() {
+    let absX = Math.abs(this.x);
+    let absY = Math.abs(this.y);
+    let absZ = Math.abs(this.z);
+    let coord = Math.max(absX, absY, absZ);
+
+    if (lib.nearEqual(coord, this.x)) {
+      return 'right';
+    }
+
+    if (lib.nearEqual(coord, -this.x)) {
+      return 'left';
+    }
+
+    if (lib.nearEqual(coord, this.y)) {
+      return 'up';
+    }
+
+    if (lib.nearEqual(coord, -this.y)) {
+      return 'down';
+    }
+
+    if (lib.nearEqual(coord, this.z)) {
+      return 'front';
+    }
+
+    return 'back';
+  }
+
+  cubeUVFront() {
+    let u = lib.modulo(this.x + 1, 2) / 2;
+    let v = lib.modulo(this.y + 1, 2) / 2;
+
+    return [u, v];
+  }
+
+  cubeUVBack() {
+    let u = lib.modulo(1 - this.x, 2) / 2;
+    let v = lib.modulo(this.y + 1, 2) / 2;
+
+    return [u, v];
+  }
+
+  cubeUVLeft() {
+    let u = lib.modulo(this.z + 1, 2) / 2;
+    let v = lib.modulo(this.y + 1, 2) / 2;
+
+    return [u, v];
+  }
+
+  cubeUVRight() {
+    let u = lib.modulo(1 - this.z, 2) / 2;
+    let v = lib.modulo(this.y + 1, 2) / 2;
+
+    return [u, v];
+  }
+
+  cubeUVUp() {
+    let u = lib.modulo(this.x + 1, 2) / 2;
+    let v = lib.modulo(1 - this.z, 2) / 2;
+
+    return [u, v];
+  }
+
+  cubeUVDown() {
+    let u = lib.modulo(this.x + 1, 2) / 2;
+    let v = lib.modulo(this.z + 1, 2) / 2;
+
+    return [u, v];
+  }
 }
 
 module.exports = Tuple;
