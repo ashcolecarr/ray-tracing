@@ -17,7 +17,7 @@ console.log('Generating data...');
 //let screenData = drawing.drawCylinderScene();
 //let screenData = drawing.drawHexagon();
 //let screenData = drawing.drawCube();
-//let screenData = drawing.drawTeapot();
+let screenData = drawing.drawTeapot();
 //let screenData = drawing.drawHumanoid();
 //let screenData = drawing.drawDie();
 //let screenData = drawing.drawCoverImage();
@@ -27,7 +27,9 @@ console.log('Generating data...');
 //let screenData = drawing.drawCheckeredPlane();
 //let screenData = drawing.drawCheckeredCylinder();
 //let screenData = drawing.drawAlignCheckPlane();
-let screenData = drawing.drawCheckeredCube();
+//let screenData = drawing.drawCheckeredCube();
+//let screenData = drawing.drawEarth();
+//let screenData = drawing.drawSkybox();
 console.log('Done.');
 
 http.createServer(function (req, res) {

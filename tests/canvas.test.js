@@ -2,6 +2,7 @@ const { TestScheduler } = require('jest');
 const Canvas = require('../src/canvas');
 const Color = require('../src/colors');
 const lib = require('../src/lib');
+const fs = require('fs');
 
 test('Creating a canvas', () => {
   let c = new Canvas(10, 20);
@@ -77,4 +78,100 @@ test('PPM files are terminated by a newline character', () => {
   let actual = ppm.slice(ppm.length - 1);
 
   expect(actual).toBe('\n');
+});
+
+test('Reading a file with the wrong magic number', () => {
+  let ppm;
+  try {
+    ppm = fs.readFileSync('./test_data/wrong_magic_number.ppm', 'utf8');
+  } catch(e) {
+    throw e;
+  }
+
+  expect(Canvas.canvasFromPpm(ppm)).toBeNull();
+});
+
+test('Reading a PPM returns a canvas of the right size', () => {
+  let ppm;
+  try {
+    ppm = fs.readFileSync('./test_data/canvas_right_size.ppm', 'utf8');
+  } catch(e) {
+    throw e;
+  }
+
+  let canvas = Canvas.canvasFromPpm(ppm);
+
+  expect(canvas.width).toBe(10);
+  expect(canvas.height).toBe(2);
+});
+
+test('Reading pixel data from a PPM file', () => {
+  let ppm;
+  try {
+    ppm = fs.readFileSync('./test_data/pixel_data.ppm', 'utf8');
+  } catch(e) {
+    throw e;
+  }
+  let examples = [
+    { 'x': 0, 'y': 0, 'color': new Color(1, 0.49803, 0) },
+    { 'x': 1, 'y': 0, 'color': new Color(0, 0.49803, 1) },
+    { 'x': 2, 'y': 0, 'color': new Color(0.49803, 1, 0) },
+    { 'x': 3, 'y': 0, 'color': new Color(1, 1, 1) },
+    { 'x': 0, 'y': 1, 'color': new Color(0, 0, 0) },
+    { 'x': 1, 'y': 1, 'color': new Color(1, 0, 0) },
+    { 'x': 2, 'y': 1, 'color': new Color(0, 1, 0) },
+    { 'x': 3, 'y': 1, 'color': new Color(0, 0, 1) },
+    { 'x': 0, 'y': 2, 'color': new Color(1, 1, 0) },
+    { 'x': 1, 'y': 2, 'color': new Color(0, 1, 1) },
+    { 'x': 2, 'y': 2, 'color': new Color(1, 0, 1) },
+    { 'x': 3, 'y': 2, 'color': new Color(0.49803, 0.49803, 0.49803) }
+  ];
+
+  let canvas = Canvas.canvasFromPpm(ppm);
+
+  for (let example of examples) {
+    let color = canvas.pixelAt(example.x, example.y);
+
+    expect(Color.areEqual(color, example.color)).toBeTruthy();
+  }
+});
+
+test('PPM parsing ignores comment lines', () => {
+  let ppm;
+  try {
+    ppm = fs.readFileSync('./test_data/comments.ppm', 'utf8');
+  } catch(e) {
+    throw e;
+  }
+
+  let canvas = Canvas.canvasFromPpm(ppm);
+
+  expect(Color.areEqual(canvas.pixelAt(0, 0), new Color(1, 1, 1))).toBeTruthy();
+  expect(Color.areEqual(canvas.pixelAt(1, 0), new Color(1, 0, 1))).toBeTruthy();
+});
+
+test('PPM parsing allows an RGB triple to span lines', () => {
+  let ppm;
+  try {
+    ppm = fs.readFileSync('./test_data/span_lines.ppm', 'utf8');
+  } catch(e) {
+    throw e;
+  }
+
+  let canvas = Canvas.canvasFromPpm(ppm);
+
+  expect(Color.areEqual(canvas.pixelAt(0, 0), new Color(0.2, 0.6, 0.8))).toBeTruthy();
+});
+
+test('PPM parsing respects the scale setting', () => {
+  let ppm;
+  try {
+    ppm = fs.readFileSync('./test_data/scale_setting.ppm', 'utf8');
+  } catch(e) {
+    throw e;
+  }
+
+  let canvas = Canvas.canvasFromPpm(ppm);
+
+  expect(Color.areEqual(canvas.pixelAt(0, 1), new Color(0.75, 0.5, 0.25))).toBeTruthy();
 });

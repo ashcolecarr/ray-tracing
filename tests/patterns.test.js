@@ -1,4 +1,5 @@
 const { TestScheduler } = require('jest');
+const Canvas = require('../src/canvas');
 const CheckersPattern = require('../src/patterns/checkers_patterns');
 const Color = require('../src/colors');
 const CubeMapPattern = require('../src/patterns/cube_map_patterns');
@@ -12,7 +13,9 @@ const TextureMapPattern = require('../src/patterns/texture_map_patterns');
 const Tuple = require('../src/tuples');
 const UVAlignCheckPattern = require('../src/patterns/uv_align_check_patterns');
 const UVCheckersPattern = require('../src/patterns/uv_checkers_patterns');
+const UVImagePattern = require('../src/patterns/uv_image_patterns');
 const { scaling, translation } = require('../src/transformations');
+const fs = require('fs');
 
 const WHITE = new Color(1, 1, 1);
 const BLACK = new Color(0, 0, 0);
@@ -419,5 +422,28 @@ test('Finding the colors on a mapped cube', () => {
     let color = pattern.patternAt(example.point);
 
     expect(Color.areEqual(color, example.color));
+  }
+});
+
+test('Checker pattern in 2D', () => {
+  let ppm;
+  try {
+    ppm = fs.readFileSync('./test_data/checker_pattern.ppm', 'utf8');
+  } catch(e) {
+    throw e;
+  }
+  let canvas = Canvas.canvasFromPpm(ppm);
+  let pattern = new UVImagePattern(canvas);
+  let examples = [
+    { 'u': 0, 'v': 0, 'expected': new Color(0.9, 0.9, 0.9) },
+    { 'u': 0.3, 'v': 0, 'expected': new Color(0.2, 0.2, 0.2) },
+    { 'u': 0.6, 'v': 0.3, 'expected': new Color(0.1, 0.1, 0.1) },
+    { 'u': 1, 'v': 1, 'expected': new Color(0.9, 0.9, 0.9) }
+  ];
+
+  for(let example of examples) {
+    let color = pattern.uvPatternAt(example.u, example.v);
+
+    expect(Color.areEqual(color, example.expected)).toBeTruthy();
   }
 });

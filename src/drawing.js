@@ -26,8 +26,10 @@ const Tuple = require('./tuples');
 const World = require('./world');
 const UVAlignCheckPattern = require('./patterns/uv_align_check_patterns');
 const UVCheckersPattern = require('./patterns/uv_checkers_patterns');
+const UVImagePattern = require('./patterns/uv_image_patterns');
 const { Axis, rotation, scaling, shearing, translation, viewTransform } = require('./transformations');
 const { objToGroup, parseObjFile } = require('./obj_file');
+const fs = require('fs');
 
 module.exports = {
   tick: function (env, proj) {
@@ -838,7 +840,7 @@ module.exports = {
     let teapot = objToGroup(parser);
     teapot.material = new Material().withReflective(.6);
     teapot.setTransform(rotation(-Math.PI / 2, Axis.X));
-    teapot.divide(5);
+    teapot.divide(100);
     world.objects.push(teapot);
 
     let camera = new Camera(400, 400, Math.PI / 6);
@@ -1479,6 +1481,97 @@ module.exports = {
     let canvas = camera.render(world);
 
     lib.writePpmFile('./images/checkered_cube.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawEarth: function() {
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(-100, 100, -100), new Color(1, 1, 1)));
+
+    let earthImage;
+    try {
+      earthImage = fs.readFileSync('./images/earthmap1k.ppm', 'utf8');
+    } catch(e) {
+      throw e;
+    }
+
+    let plane = new Plane();
+    plane.material = new Material().withAmbient(0).withColor(new Color(1, 1, 1))
+      .withDiffuse(0.1).withReflective(0.4).withSpecular(0);
+    world.objects.push(plane);
+
+    let cylinder = new Cylinder();
+    cylinder.minimum = 0;
+    cylinder.maximum = 0.1;
+    cylinder.closed = true;
+    cylinder.material = new Material().withAmbient(0).withColor(new Color(1, 1, 1))
+      .withDiffuse(0.2).withReflective(0.1).withSpecular(0);
+    world.objects.push(cylinder);
+
+    let earthCanvas = Canvas.canvasFromPpm(earthImage);
+    let earth = new Sphere();
+    let texture = new UVImagePattern(earthCanvas);
+    let pattern = new TextureMapPattern(texture, 'spherical');
+    earth.setTransform(Matrix.multiply(translation(0, 1.1, 0), rotation(1.9, Axis.Y)));
+    earth.material = new Material().withAmbient(0.1).withDiffuse(0.9)
+      .withPattern(pattern).withShininess(10).withSpecular(0.1);
+    world.objects.push(earth);
+
+    let camera = new Camera(800, 400, 0.8);
+    camera.transform = viewTransform(Tuple.point(1, 2, -10),
+      Tuple.point(0, 1.1, 0), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/earth.ppm', canvas);
+    
+    return lib.generateScreenCanvasData(canvas);
+  },
+
+  drawSkybox: function() {
+    let filenames = ['negx', 'posx', 'posz', 'negz', 'posy', 'negy'];
+    let skyboxSides = [];
+    for (let filename of filenames) {
+      try {
+        let ppm = fs.readFileSync(`./images/${filename}.ppm`, 'utf8');
+        let canvas = Canvas.canvasFromPpm(ppm);
+        skyboxSides.push(canvas);
+      } catch(e) {
+        throw e;
+      }
+    }
+
+    let world = new World();
+    world.lights.push(new PointLight(Tuple.point(0, 100, 0), new Color(1, 1, 1)));
+
+    let sphere = new Sphere();
+    sphere.setTransform(Matrix.multiply(translation(0, 0, 5), scaling(0.75, 0.75, 0.75)));
+    sphere.material = new Material().withAmbient(0)
+      .withDiffuse(0.4).withReflective(0.6).withSpecular(0.6);
+    world.objects.push(sphere);
+
+    let left = new UVImagePattern(skyboxSides[0]);
+    let right = new UVImagePattern(skyboxSides[1]);
+    let front = new UVImagePattern(skyboxSides[2]);
+    let back = new UVImagePattern(skyboxSides[3]);
+    let up = new UVImagePattern(skyboxSides[4]);
+    let down = new UVImagePattern(skyboxSides[5]);
+    let mapping = new CubeMapPattern(left, front, right, back, up, down);
+
+    let cube = new Cube();
+    cube.setTransform(scaling(1000, 1000, 1000));
+    cube.material = new Material().withAmbient(1).withDiffuse(0)
+      .withPattern(mapping).withSpecular(0.1);
+    world.objects.push(cube);
+
+    let camera = new Camera(800, 400, 1.2);
+    camera.transform = viewTransform(Tuple.point(0, 0, 0),
+      Tuple.point(0, 0, 5), Tuple.vector(0, 1, 0));
+    
+    let canvas = camera.render(world);
+
+    lib.writePpmFile('./images/skybox.ppm', canvas);
     
     return lib.generateScreenCanvasData(canvas);
   },

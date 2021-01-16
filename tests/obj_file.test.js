@@ -6,7 +6,7 @@ const fs = require('fs');
 test('Ignoring unrecognized lines', () => {
   let gibberish;
   try {
-    gibberish = fs.readFileSync('./obj/gibberish.obj', 'utf8');
+    gibberish = fs.readFileSync('./test_data/gibberish.obj', 'utf8');
   } catch(e) {
     throw e;
   }
@@ -19,7 +19,7 @@ test('Ignoring unrecognized lines', () => {
 test('Vertex records', () => {
   let file;
   try {
-    file = fs.readFileSync('./obj/vertex_records.obj', 'utf8');
+    file = fs.readFileSync('./test_data/vertex_records.obj', 'utf8');
   } catch(e) {
     throw e;
   }
@@ -35,7 +35,7 @@ test('Vertex records', () => {
 test('Parsing triangle faces', () => {
   let file;
   try {
-    file = fs.readFileSync('./obj/parsing_triangle_faces.obj', 'utf8');
+    file = fs.readFileSync('./test_data/parsing_triangle_faces.obj', 'utf8');
   } catch(e) {
     throw e;
   }
@@ -56,7 +56,7 @@ test('Parsing triangle faces', () => {
 test('Triangulating polygons', () => {
   let file;
   try {
-    file = fs.readFileSync('./obj/triangulating_polygons.obj', 'utf8');
+    file = fs.readFileSync('./test_data/triangulating_polygons.obj', 'utf8');
   } catch(e) {
     throw e;
   }
@@ -81,7 +81,7 @@ test('Triangulating polygons', () => {
 test('Triangles in groups', () => {
   let file;
   try {
-    file = fs.readFileSync('./obj/triangles.obj', 'utf8');
+    file = fs.readFileSync('./test_data/triangles.obj', 'utf8');
   } catch(e) {
     throw e;
   }
@@ -105,7 +105,7 @@ test('Triangles in groups', () => {
 test('Converting an OBJ file to a group', () => {
   let file;
   try {
-    file = fs.readFileSync('./obj/triangles.obj', 'utf8');
+    file = fs.readFileSync('./test_data/triangles.obj', 'utf8');
   } catch(e) {
     throw e;
   }
@@ -120,7 +120,7 @@ test('Converting an OBJ file to a group', () => {
 test('Vertex normal records', () => {
   let file;
   try {
-    file = fs.readFileSync('./obj/vertex_normal_records.obj', 'utf8');
+    file = fs.readFileSync('./test_data/vertex_normal_records.obj', 'utf8');
   } catch(e) {
     throw e;
   }
@@ -135,7 +135,7 @@ test('Vertex normal records', () => {
 test('Faces with normals', () => {
   let file;
   try {
-    file = fs.readFileSync('./obj/faces_with_normals.obj', 'utf8');
+    file = fs.readFileSync('./test_data/faces_with_normals.obj', 'utf8');
   } catch(e) {
     throw e;
   }
